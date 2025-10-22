@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<!-- saved from url=(0057)https://www.dailydoseofds.com/mlops-crash-course-part-13/ -->
+<html lang="en" data-color-scheme="light"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!--     <meta property="og:image" content="https://www.dailydoseofds.com/content/images/2024/11/landing-page-15.svg" />
+    <meta property="og:title" content="Daily Dose of Data Science" /> -->
+
+    <!-- <meta property="twitter:image" content="https://www.dailydoseofds.com/content/images/2024/11/landing-page-15.svg" /> -->
+
+    <title>The Full MLOps Blueprint: Model Deployment—Part C</title>
+    <title></title>
+
+    
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="theme-color" content="#54b6f2">
+
+
+    <link rel="preload" href="./mlops-crash-course-part-13_files/app.min.js" as="script">
+    <link rel="preload" href="./mlops-crash-course-part-13_files/app.min.css" as="style">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+
+
+
+
+
+
+
+
+    <link rel="stylesheet" href="./mlops-crash-course-part-13_files/css2" as="style" onload="this.onload=null;this.rel=&#39;stylesheet&#39;" crossorigin="">
+    <style>body { --font-body: 'Noto Serif', serif; --font-headings: 'Noto Serif', serif; }</style>
+
+
+
+
+
+    <script type="text/javascript" async="" src="./mlops-crash-course-part-13_files/reb2b.js.gz"></script><script async="" defer="" src="./mlops-crash-course-part-13_files/app.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./mlops-crash-course-part-13_files/app.min.css">
+
+    <style>
+  :root {
+    --global-max-width: 1080px; /* site max width */
+    --global-content-width: 640px; /* post-content-width */
+    --global-wide-width: 960px; /* site max width */
+    --global-radius: 12px; /* default radius */
+    --global-radius-rounded: 30px;
+    --global-gallery-gap: 1em; /* Image gallery distance between images */
+    --global-hyphens: none; /* none/auto */
+    --global-header-height: 72px;
+    --global-theme-notifications: visible; /* visible/hidden */
+    --global-progress-bar: visible; /* visible/hidden */
+    --global-content-preview-fading: 0%; /* 50%-100% for fading effect */
+    --global-scroll-behavior: smooth;
+  }
+</style>
+
+<script>
+  let preferredTheme = localStorage.getItem('PREFERRED_COLOR_SCHEME') || `light`;
+  document.documentElement.setAttribute('data-color-scheme', preferredTheme);
+  
+  // Global values needed
+  const themeGlobal = {
+    currentPage: parseInt(''),
+    nextPage: parseInt(''),
+    nextPageLink: '',
+    maxPages: parseInt(''), 
+    lastPage: `` === `` ? true : false,
+    postsPerPage: parseInt('8'),
+    scrollPos: 0,
+    imageLightbox: false
+  }
+
+  // Calculate contrast & HSL value;
+  function getBrandColorInfo(hexcolor) {
+    // get contrast
+    if (hexcolor.slice(0, 1) === '#') { hexcolor = hexcolor.slice(1); }
+    if (hexcolor.length === 3) { hexcolor = hexcolor.split('').map(function (hex) { return hex + hex;}).join(''); }
+    let r = parseInt(hexcolor.substr(0,2),16), g = parseInt(hexcolor.substr(2,2),16), b = parseInt(hexcolor.substr(4,2),16);
+    let yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    const colorContrast = (yiq >= 128) ? '#000' : '#fff';
+
+    //get HSL
+    r /= 255, g /= 255, b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min)  /  2;  
+    if ( max == min ) { h = s = 0; } else {
+      let d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch(max){
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    const colorHSL = [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+
+    // return
+    return { colorContrast, colorHSL }
+  };
+
+  const brandColor = getBrandColorInfo("#54b6f2");
+  let style = document.createElement('style');
+  style.innerHTML = `:root { 
+    --color-brand-contrast: ${brandColor.colorContrast}; 
+    --color-brand-h: ${brandColor.colorHSL[0]};
+    --color-brand-s: ${brandColor.colorHSL[1]}%;
+    --color-brand-l: ${brandColor.colorHSL[2]}%;
+    --color-brand-hsl: ${brandColor.colorHSL[0]} ${brandColor.colorHSL[1]}% ${brandColor.colorHSL[2]}%;
+  }`
+  document.getElementsByTagName('head')[0].appendChild(style);
+</script><style>:root { 
+    --color-brand-contrast: #000; 
+    --color-brand-h: 203;
+    --color-brand-s: 86%;
+    --color-brand-l: 64%;
+    --color-brand-hsl: 203 86% 64%;
+  }</style>
+
+    
+    
+<link rel="stylesheet" href="./mlops-crash-course-part-13_files/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<style>
+    :not(pre)>code[class*=language-],pre[class*=language-] {
+    background: #011627
+    }
+  
+    @media screen and (max-width: 600px) {
+  .katex {
+    font-size: 14px; /* Adjust the font size as needed */
+    overflow-x: auto; /* Add horizontal scrolling for long equations */
+    max-width: 100%; /* Set a maximum width for the equations */
+  }
+}
+    
+</style>
+
+
+
+<link rel="stylesheet" href="./mlops-crash-course-part-13_files/all.min.css">
+
+
+<script type="text/javascript" async="" src="./mlops-crash-course-part-13_files/MathJax.js">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        processEscapes: true
+    }
+});
+</script>
+
+<link rel="stylesheet" href="./mlops-crash-course-part-13_files/katex.css" crossorigin="anonymous">
+<script defer="" src="./mlops-crash-course-part-13_files/katex.js" crossorigin="anonymous"></script>
+<script defer="" src="./mlops-crash-course-part-13_files/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+
+<script src="./mlops-crash-course-part-13_files/prism-core.min.js" integrity="sha512-9khQRAUBYEJDCDVP2yw3LRUQvjJ0Pjx0EShmaQjcHa6AXiOv6qHQu9lCAIR8O+/D8FtaCoJ2c0Tf9Xo7hYH01Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="./mlops-crash-course-part-13_files/prism-autoloader.min.js" integrity="sha512-fTl/qcO1VgvKtOMApX2PdZzkziyr2stM65GYPLGuYMnuMm1z2JLJG6XVU7C/mR+E7xBUqCivykuhlzfqxXBXbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="./mlops-crash-course-part-13_files/prism-toolbar.min.js" integrity="sha512-st608h+ZqzliahyzEpETxzU0f7z7a9acN6AFvYmHvpFhmcFuKT8a22TT5TpKpjDa3pt3Wv7Z3SdQBCBdDPhyWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="./mlops-crash-course-part-13_files/prism-copy-to-clipboard.min.js" integrity="sha512-/kVH1uXuObC0iYgxxCKY41JdWOkKOxorFVmip+YVifKsJ4Au/87EisD1wty7vxN2kAhnWh6Yc8o/dSAXj6Oz7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script>
+    
+  document.addEventListener("DOMContentLoaded", function() {
+    // Find all the locations
+    const toolbarItems = document.querySelectorAll('.toolbar-item');
+    
+    // Iterate over each location
+    toolbarItems.forEach(toolbarItem => {
+      const copyButton = toolbarItem.querySelector('.copy-to-clipboard-button');
+
+      // Create the <i> element
+      const icon = document.createElement('i');
+      icon.className = 'far fa-copy'; // Assuming the correct FontAwesome icon class is 'far fa-copy'
+        
+       icon.style.marginRight = '5px'; // Adjust the margin value as needed
+
+      // Insert the <i> element before the existing content of the button
+      copyButton.insertBefore(icon, copyButton.firstChild);
+    });
+  });  
+
+</script>
+     
+
+    <meta name="description" content="MLOps and LLMOps Crash Course—Part 13.">
+    <link rel="icon" href="https://www.dailydoseofds.com/content/images/size/w256h256/format/png/2023/06/logo-subsatck2-1.svg" type="image/png">
+    <link rel="canonical" href="https://www.dailydoseofds.com/mlops-crash-course-part-13/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <meta property="og:site_name" content="Daily Dose of Data Science">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Full MLOps Blueprint: Model Deployment—Part C">
+    <meta property="og:description" content="MLOps and LLMOps Crash Course—Part 13.">
+    <meta property="og:url" content="https://www.dailydoseofds.com/mlops-crash-course-part-13/">
+    <meta property="og:image" content="https://www.dailydoseofds.com/content/images/size/w1200/2025/10/Sanyog-MLOps_-_I-1.png">
+    <meta property="article:published_time" content="2025-10-18T19:29:29.000Z">
+    <meta property="article:modified_time" content="2025-10-18T19:29:29.000Z">
+    <meta property="article:tag" content="MLOps Crash Course">
+    <meta property="article:tag" content="MLOps">
+    <meta property="article:tag" content="Deployment">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Full MLOps Blueprint: Model Deployment—Part C">
+    <meta name="twitter:description" content="MLOps and LLMOps Crash Course—Part 13.">
+    <meta name="twitter:url" content="https://www.dailydoseofds.com/mlops-crash-course-part-13/">
+    <meta name="twitter:image" content="https://www.dailydoseofds.com/content/images/size/w1200/2025/10/Sanyog-MLOps_-_I-1.png">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Avi Chawla">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="MLOps Crash Course, MLOps, Deployment">
+    <meta name="twitter:site" content="@_avichawla">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="857">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Daily Dose of Data Science",
+        "url": "https://www.dailydoseofds.com/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.dailydoseofds.com/content/images/2023/06/logo-subsatck2.svg"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Avi Chawla",
+        "image": {
+            "@type": "ImageObject",
+            "url": "https://www.dailydoseofds.com/content/images/2024/12/avi-google.jpg",
+            "width": 287,
+            "height": 303
+        },
+        "url": "https://www.dailydoseofds.com/author/avi/",
+        "sameAs": []
+    },
+    "contributor": [
+        {
+            "@type": "Person",
+            "name": "Akshay Pachaar",
+            "image": {
+                "@type": "ImageObject",
+                "url": "https://www.dailydoseofds.com/content/images/2024/11/38653995.png"
+            },
+            "url": "https://www.dailydoseofds.com/author/akshay/",
+            "sameAs": []
+        }
+    ],
+    "headline": "The Full MLOps Blueprint: Model Deployment—Part C",
+    "url": "https://www.dailydoseofds.com/mlops-crash-course-part-13/",
+    "datePublished": "2025-10-18T19:29:29.000Z",
+    "dateModified": "2025-10-18T19:29:29.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://www.dailydoseofds.com/content/images/size/w1200/2025/10/Sanyog-MLOps_-_I-1.png",
+        "width": 1200,
+        "height": 857
+    },
+    "keywords": "MLOps Crash Course, MLOps, Deployment",
+    "description": "MLOps and LLMOps Crash Course—Part 13.",
+    "mainEntityOfPage": "https://www.dailydoseofds.com/mlops-crash-course-part-13/"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 6.4">
+    <link rel="alternate" type="application/rss+xml" title="Daily Dose of Data Science" href="https://www.dailydoseofds.com/rss/">
+    <script defer="" src="./mlops-crash-course-part-13_files/portal.min.js" data-i18n="true" data-ghost="https://www.dailydoseofds.com/" data-key="933dba8c65eaaa9a2f6c0be670" data-api="https://daily-dose-of-data-science.ghost.io/ghost/api/content/" data-locale="en" data-members-signin-otc="false" data-members-signin-otc-alpha="false" crossorigin="anonymous"></script><style id="gh-members-styles">.gh-post-upgrade-cta-content,
+.gh-post-upgrade-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    width: 100%;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.gh-post-upgrade-cta-content {
+    border-radius: 8px;
+    padding: 40px 4vw;
+}
+
+.gh-post-upgrade-cta h2 {
+    color: #ffffff;
+    font-size: 28px;
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta p {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta small {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+}
+
+.gh-post-upgrade-cta a {
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a:hover {
+    color: #ffffff;
+    opacity: 0.8;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a.gh-btn {
+    display: block;
+    background: #ffffff;
+    text-decoration: none;
+    margin: 28px 0 0;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gh-post-upgrade-cta a.gh-btn:hover {
+    opacity: 0.92;
+}</style><script async="" src="./mlops-crash-course-part-13_files/saved_resource"></script>
+    <script defer="" src="./mlops-crash-course-part-13_files/sodo-search.min.js" data-key="933dba8c65eaaa9a2f6c0be670" data-styles="https://cdn.jsdelivr.net/ghost/sodo-search@~1.8/umd/main.css" data-sodo-search="https://daily-dose-of-data-science.ghost.io/" data-locale="en" crossorigin="anonymous"></script>
+    
+    <link href="https://www.dailydoseofds.com/webmentions/receive/" rel="webmention">
+    <script defer="" src="./mlops-crash-course-part-13_files/cards.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./mlops-crash-course-part-13_files/cards.min.css">
+    <script defer="" src="./mlops-crash-course-part-13_files/comment-counts.min.js" data-ghost-comments-counts-api="https://www.dailydoseofds.com/members/api/comments/counts/"></script>
+    <script defer="" src="./mlops-crash-course-part-13_files/member-attribution.min.js"></script>
+    <script defer="" src="./mlops-crash-course-part-13_files/ghost-stats.min.js" data-stringify-payload="false" data-datasource="analytics_events" data-storage="localStorage" data-host="https://www.dailydoseofds.com/.ghost/analytics/api/v1/page_hit" tb_site_uuid="d8254d8f-566a-42ac-8bcd-138671e20542" tb_post_uuid="317c6ff7-991c-43e9-ada0-ef6e974990ad" tb_post_type="post" tb_member_uuid="16327f5c-ae2a-4c35-ae17-2063de1d6954" tb_member_status="paid"></script><style>:root {--ghost-accent-color: #54b6f2;}</style>
+    <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="43b2ed2e-3626-48d0-8017-811d7371e623";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script><script src="./mlops-crash-course-part-13_files/l.js" async=""></script>
+
+
+<style>
+    
+    .formkit-close {
+    display: none;
+}
+
+</style>
+
+<!-- Google tag (gtag.js) -->
+<script async="" src="./mlops-crash-course-part-13_files/js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0FQY1YMJT');
+</script>
+
+
+ <script>
+    !function () {var reb2b = window.reb2b = window.reb2b || [];
+    if (reb2b.invoked) return;reb2b.invoked = true;reb2b.methods = ["identify", "collect"];
+    reb2b.factory = function (method) {return function () {var args = Array.prototype.slice.call(arguments);
+    args.unshift(method);reb2b.push(args);return reb2b;};};
+    for (var i = 0; i < reb2b.methods.length; i++) {var key = reb2b.methods[i];reb2b[key] = reb2b.factory(key);}
+    reb2b.load = function (key) {var script = document.createElement("script");script.type = "text/javascript";script.async = true;
+    script.src = "https://s3-us-west-2.amazonaws.com/b2bjsstore/b/" + key + "/reb2b.js.gz";
+    var first = document.getElementsByTagName("script")[0];
+    first.parentNode.insertBefore(script, first);};
+    reb2b.SNIPPET_VERSION = "1.0.1";reb2b.load("46DJ4HMK7E61");}();
+  </script>
+
+
+<script defer="" data-domain="dailydoseofds.com" src="./mlops-crash-course-part-13_files/script.js"></script>
+
+
+<style>
+                  .overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.8);
+                    display: none;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                  }
+
+                  .overlay img {
+                    max-width: 90%;
+                    max-height: 90%;
+                    border-radius: 5px;
+                    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+                      cursor: zoom-in;
+                  }
+                  </style>
+
+                  <script>
+                      document.addEventListener('DOMContentLoaded', function() {
+                    var overlay = document.createElement('div');
+                    overlay.classList.add('overlay');
+                    overlay.addEventListener('click', function() {
+                      overlay.style.display = 'none';
+                    });
+                    document.body.appendChild(overlay);
+
+                    var images = document.querySelectorAll('.kg-image');
+                    images.forEach(function(image) {
+                      image.addEventListener('click', function() {
+                        var imgSrc = image.getAttribute('src');
+                        var imgAlt = image.getAttribute('alt');
+                        var img = document.createElement('img');
+                        img.setAttribute('src', imgSrc);
+                        img.setAttribute('alt', imgAlt);
+                        overlay.innerHTML = '';
+                        overlay.appendChild(img);
+                        overlay.style.display = 'flex';
+                      });
+                      image.addEventListener('mouseenter', function() {
+                        image.style.cursor = 'zoom-in';
+                      });
+                      image.addEventListener('mouseleave', function() {
+                        image.style.cursor = 'default';
+                      });
+                    });
+
+                    document.addEventListener('keydown', function(event) {
+                      if (event.key === 'Escape') {
+                        overlay.style.display = 'none';
+                      }
+                    });
+                  });
+                      
+                  </script>
+
+<script>
+    (function(u, x, s, n, i, f) {
+        if (window.location.href.includes("membership")) {
+            u.ux = u.ux || function() {
+                (u.ux.q = u.ux.q || []).push(arguments);
+            };
+            i = x.getElementsByTagName('head')[0];
+            f = x.createElement('script');
+            f.async = 1;
+            f.src = s + n;
+            i.appendChild(f);
+        }
+    })(window, document, 'https://api.uxsniff.com/cdn/js/uxsnf_track', '.js');
+</script>
+
+
+<style>
+/* Ensure video containers are responsive */
+.kg-video-card video {
+    width: 100% !important;
+    max-width: 100%;
+    height: auto !important;
+    object-fit: contain;
+}
+
+/* On small screens, prevent video overflow */
+@media (max-width: 768px) {
+    .kg-video-card {
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    video {
+        max-width: 100%;
+        height: auto !important;
+    }
+}
+</style>
+
+<script>
+function updateVideoControls() {
+    // Remove custom Ghost overlay and container if they exist
+    document.querySelectorAll('.kg-video-overlay, .kg-video-player-container').forEach(function(element) {
+        element.parentNode.removeChild(element);
+    });
+
+    document.querySelectorAll('video').forEach(function(video) {
+        video.setAttribute('controls', 'true');
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('controlsList', 'nodownload'); // This hides the download button in most browsers
+
+        // Responsive video styles
+        video.style.maxWidth = "100%";
+        video.style.height = "auto";
+
+        // Optional: click-to-toggle play/pause
+        video.addEventListener('click', function() {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        });
+
+        // Optional: move playback slightly forward to avoid thumbnail-only state
+        video.addEventListener('loadedmetadata', function() {
+            video.currentTime = 1;
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateVideoControls();
+
+    // Watch for dynamically inserted videos (Ghost may inject them after page load)
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList') {
+                updateVideoControls();
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
+  <style class="fslightbox-styles">.fslightbox-absoluted{position:absolute;top:0;left:0}.fslightbox-fade-in{animation:fslightbox-fade-in .3s cubic-bezier(0,0,.7,1)}.fslightbox-fade-out{animation:fslightbox-fade-out .3s ease}.fslightbox-fade-in-strong{animation:fslightbox-fade-in-strong .3s cubic-bezier(0,0,.7,1)}.fslightbox-fade-out-strong{animation:fslightbox-fade-out-strong .3s ease}@keyframes fslightbox-fade-in{from{opacity:.65}to{opacity:1}}@keyframes fslightbox-fade-out{from{opacity:.35}to{opacity:0}}@keyframes fslightbox-fade-in-strong{from{opacity:.3}to{opacity:1}}@keyframes fslightbox-fade-out-strong{from{opacity:1}to{opacity:0}}.fslightbox-cursor-grabbing{cursor:grabbing}.fslightbox-full-dimension{width:100%;height:100%}.fslightbox-open{overflow:hidden;height:100%}.fslightbox-flex-centered{display:flex;justify-content:center;align-items:center}.fslightbox-opacity-0{opacity:0!important}.fslightbox-opacity-1{opacity:1!important}.fslightbox-scrollbarfix{padding-right:17px}.fslightbox-transform-transition{transition:transform .3s}.fslightbox-container{font-family:Arial,sans-serif;position:fixed;top:0;left:0;background:linear-gradient(rgba(30,30,30,.9),#000 1810%);touch-action:pinch-zoom;z-index:1000000000;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}.fslightbox-container *{box-sizing:border-box}.fslightbox-svg-path{transition:fill .15s ease;fill:#ddd}.fslightbox-nav{height:45px;width:100%;position:absolute;top:0;left:0}.fslightbox-slide-number-container{display:flex;justify-content:center;align-items:center;position:relative;height:100%;font-size:15px;color:#d7d7d7;z-index:0;max-width:55px;text-align:left}.fslightbox-slide-number-container .fslightbox-flex-centered{height:100%}.fslightbox-slash{display:block;margin:0 5px;width:1px;height:12px;transform:rotate(15deg);background:#fff}.fslightbox-toolbar{position:absolute;z-index:3;right:0;top:0;height:100%;display:flex;background:rgba(35,35,35,.65)}.fslightbox-toolbar-button{height:100%;width:45px;cursor:pointer}.fslightbox-toolbar-button:hover .fslightbox-svg-path{fill:#fff}.fslightbox-slide-btn-container{display:flex;align-items:center;padding:12px 12px 12px 6px;position:absolute;top:50%;cursor:pointer;z-index:3;transform:translateY(-50%)}@media (min-width:476px){.fslightbox-slide-btn-container{padding:22px 22px 22px 6px}}@media (min-width:768px){.fslightbox-slide-btn-container{padding:30px 30px 30px 6px}}.fslightbox-slide-btn-container:hover .fslightbox-svg-path{fill:#f1f1f1}.fslightbox-slide-btn{padding:9px;font-size:26px;background:rgba(35,35,35,.65)}@media (min-width:768px){.fslightbox-slide-btn{padding:10px}}@media (min-width:1600px){.fslightbox-slide-btn{padding:11px}}.fslightbox-slide-btn-container-previous{left:0}@media (max-width:475.99px){.fslightbox-slide-btn-container-previous{padding-left:3px}}.fslightbox-slide-btn-container-next{right:0;padding-left:12px;padding-right:3px}@media (min-width:476px){.fslightbox-slide-btn-container-next{padding-left:22px}}@media (min-width:768px){.fslightbox-slide-btn-container-next{padding-left:30px}}@media (min-width:476px){.fslightbox-slide-btn-container-next{padding-right:6px}}.fslightbox-down-event-detector{position:absolute;z-index:1}.fslightbox-slide-swiping-hoverer{z-index:4}.fslightbox-invalid-file-wrapper{font-size:22px;color:#eaebeb;margin:auto}.fslightbox-video{object-fit:cover}.fslightbox-youtube-iframe{border:0}.fslightboxl{display:block;margin:auto;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:67px;height:67px}.fslightboxl div{box-sizing:border-box;display:block;position:absolute;width:54px;height:54px;margin:6px;border:5px solid;border-color:#999 transparent transparent transparent;border-radius:50%;animation:fslightboxl 1.2s cubic-bezier(.5,0,.5,1) infinite}.fslightboxl div:nth-child(1){animation-delay:-.45s}.fslightboxl div:nth-child(2){animation-delay:-.3s}.fslightboxl div:nth-child(3){animation-delay:-.15s}@keyframes fslightboxl{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}.fslightbox-source{position:relative;z-index:2;opacity:0}</style><style>.App{text-align:center}.App-logo{height:40vmin;pointer-events:none}@media (prefers-reduced-motion: no-preference){.App-logo{animation:App-logo-spin infinite 20s linear}}.App-header{background-color:#282c34;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin);color:#fff}.App-link{color:#61dafb}@keyframes App-logo-spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}
+/*$vite$:1*/</style><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><link href="https://client.relay.crisp.chat/" rel="dns-prefetch" crossorigin=""><link href="https://client.crisp.chat/" rel="preconnect" crossorigin=""><script src="./mlops-crash-course-part-13_files/client_default_85c2dd8.js" type="module" async=""></script><link href="./mlops-crash-course-part-13_files/client_default_85c2dd8.css" type="text/css" rel="stylesheet"><style id="fit-vids-style">.fluid-width-video-wrapper{width:100%;position:relative;padding:0;}.fluid-width-video-wrapper iframe,.fluid-width-video-wrapper object,.fluid-width-video-wrapper embed {position:absolute;top:0;left:0;width:100%;height:100%;}</style></head>
+  <body class="post-template tag-hash-blog tag-mlops-crash-course-2 tag-mlops tag-deployment is-member is-paid-member"><div id="MathJax_Message" style="display: none;"></div>
+    <div class="progress-bar"></div>
+
+
+    <div id="parity-banner-container"></div>
+    
+
+    <header class="header js-header" data-nav-items="">
+  <div class="container wrapper is-rel flex items-center">
+    <div class="header-brand">
+<a href="https://www.dailydoseofds.com/">          <picture class="default-logo">
+  <source sizes="(max-width: 800px) 200px, 320px" srcset="/content/images/size/w300/format/webp/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/format/webp/2023/06/logo-subsatck2.svg 600w" type="image/webp">
+  <img class="header__logo" sizes="(max-width: 800px) 200px, 320px" data-srcset="/content/images/size/w300/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/2023/06/logo-subsatck2.svg 600w" srcset="/content/images/size/w30/2023/06/logo-subsatck2.svg 30w" data-src="/content/images/size/w100/2023/06/logo-subsatck2.svg" src="./mlops-crash-course-part-13_files/logo-subsatck2.svg" alt="Daily Dose of Data Science" loading="eager">
+</picture></a>    </div>
+
+    <span class="flex-1"></span>
+
+    <ul class="nav" data-items="8">
+
+
+
+
+        <li class="nav-newsletter" data-label="Newsletter" data-length="10" data-post="">
+          <a href="https://join.dailydoseofds.com/">
+            <span>Newsletter</span>
+          </a>
+        <ul></ul></li>
+
+
+
+
+
+
+
+        <li class="nav-more is-toggle is-mainitem" data-label="More" data-length="4" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#">
+            <span>More</span>
+          </a>
+        <ul class="nav submenu"><li class="nav-contact is-subitem" data-label="- Contact" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/contact/">
+            <span> Contact</span>
+          </a>
+        </li><li class="nav-faqs is-subitem" data-label="- FAQs" data-length="6" data-post="">
+          <a href="https://www.dailydoseofds.com/faq/">
+            <span> FAQs</span>
+          </a>
+        </li><li class="nav-about is-subitem" data-label="- About" data-length="7" data-post="">
+          <a href="https://www.dailydoseofds.com/about/">
+            <span> About</span>
+          </a>
+        </li></ul></li>
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        <li class="nav-search" data-label="Search 🔎" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#/search/">
+            <span>Search 🔎</span>
+          </a>
+        <ul></ul></li>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+        
+          
+
+
+
+
+</ul>
+
+    <button class="btn header-search-toggle" data-ghost-search="" title="Search" aria-label="Search">
+      <i class="icon icon-search">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <circle cx="10" cy="10" r="7"></circle>
+  <line x1="21" y1="21" x2="15" y2="15"></line>
+</svg>
+
+
+
+</i>    </button>
+
+    <button class="btn header-menu-toggle js-menu-toggle" title="Menu" aria-label="Menu">
+      <i class="icon icon-menu">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M4 8l16 0"></path>
+  <path d="M4 16l16 0"></path>
+</svg>
+</i>      <i class="icon icon-x">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <line x1="18" y1="6" x2="6" y2="18"></line>
+  <line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+</i>    </button>
+
+      <button class="header-user-toggle js-member-btn is-member" title="" aria-label="">
+          <img class="header-user-avatar" src="./mlops-crash-course-part-13_files/232fc807a6c59bc3ed5b76546707a32a.png" alt="Chen Farchi">
+        <i class="icon icon-user icon--md">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+  <circle cx="12" cy="7" r="4"></circle>
+</svg>
+</i>      </button>
+
+    <div class="member-menu js-member-menu">
+    <div class="member-user">
+      <div class="member-info flex flex-col">
+        <div class="member-name">Chen Farchi</div>
+        <span class="member-email">chen.farchi3@gmail.com</span>
+      </div>
+    </div>
+
+    <a href="https://www.dailydoseofds.com/account/" class="account-link">
+      <i class="icon icon-user icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+  <circle cx="12" cy="7" r="4"></circle>
+</svg>
+</i>Account
+    </a>
+
+    <a href="javascript:" data-members-signout="" class="signout-link">
+      <i class="icon icon-logout icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
+  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+  <polyline points="16 17 21 12 16 7"></polyline>
+  <line x1="21" y1="12" x2="9" y2="12"></line>
+</svg>
+</i>Sign out
+    </a>
+</div>
+    <span class="border-bottom"></span>
+
+  </div>
+</header>
+
+
+    <div class="menu js-menu">
+  <nav class="menu-navigation">
+    <ul class="nav" data-items="8">
+
+
+
+
+        <li class="nav-newsletter" data-label="Newsletter" data-length="10" data-post="">
+          <a href="https://join.dailydoseofds.com/">
+            <span>Newsletter</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-more is-toggle" data-label="More" data-length="4" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#">
+            <span>More</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-contact is-subitem" data-label="- Contact" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/contact/">
+            <span> Contact</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-faqs is-subitem" data-label="- FAQs" data-length="6" data-post="">
+          <a href="https://www.dailydoseofds.com/faq/">
+            <span> FAQs</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-about is-subitem" data-label="- About" data-length="7" data-post="">
+          <a href="https://www.dailydoseofds.com/about/">
+            <span> About</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-search" data-label="Search 🔎" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#/search/">
+            <span>Search 🔎</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+        
+          
+
+
+
+
+</ul>
+
+  </nav>
+</div>
+      
+    <main class="main">
+      
+
+  <div class="container wrapper">
+    <div class="post-hero is-post " data-feature-image="true" style="border-bottom: 1px solid var(--color-border); margin: 2em auto 2em;">
+  
+  <div class="post-hero__content flex flex-col">
+      <time class="post-hero__date" datetime="2025-10-19">Oct 19, 2025</time> 
+
+    <h1 class="post-hero__title">The Full MLOps Blueprint: Model Deployment—Part C</h1>
+   
+      <p class="post-hero__excerpt text-acc">MLOps and LLMOps Crash Course—Part 13.</p>
+
+      <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="61px" data-sizes="auto" srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyautosizes ls-is-cached lazyloaded" sizes="61px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-13_files/avi-google.jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="61px" data-sizes="auto" srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyautosizes ls-is-cached lazyloaded" sizes="61px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-13_files/38653995.png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</div>
+    <div class="post-toc js-post-toc is-visible is-rendered"> 
+  <button class="btn post-toc-toggle" aria-label="Table of Contents" onclick="this.parentNode.classList.toggle(&#39;is-visible&#39;)">
+    <span>Table of Contents</span>
+    <i class="icon icon-chevron-down icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+   <polyline points="6 9 12 15 18 9"></polyline>
+</svg>
+</i>  </button>
+  <div class="post-toc__content js-toc"><ol class="toc-list "><li class="toc-list-item is-active-li"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#recap" class="toc-link node-name--H2  is-active-link">Recap</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#basics-how-the-internet-works" class="toc-link node-name--H2 ">Basics: how the internet works</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#ip-addresses-and-domain-names" class="toc-link node-name--H3 ">IP Addresses and domain names</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#data-movement" class="toc-link node-name--H3 ">Data movement</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#cloud-computing-definition-and-characteristics" class="toc-link node-name--H2 ">Cloud computing: definition and characteristics</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#nist-essential-characteristics" class="toc-link node-name--H3 ">NIST essential characteristics</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#cloud-computing-types-of-models" class="toc-link node-name--H2 ">Cloud computing: types of models</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#deployment-models" class="toc-link node-name--H3 ">Deployment models</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#service-models-iaas-paas-saas" class="toc-link node-name--H3 ">Service models: IaaS, PaaS, SaaS</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#cloud-economics-cost-models" class="toc-link node-name--H3 ">Cloud economics &amp; cost models</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#shared-responsibility-model" class="toc-link node-name--H3 ">Shared responsibility model</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#cloud-infrastructure-components" class="toc-link node-name--H2 ">Cloud infrastructure components</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#virtual-machines-hypervisors-and-virtualization" class="toc-link node-name--H3 ">Virtual Machines, hypervisors, and virtualization</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#hypervisor" class="toc-link node-name--H4 ">Hypervisor</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#how-virtual-machines-work" class="toc-link node-name--H4 ">How virtual machines work</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#virtualization-in-the-cloud" class="toc-link node-name--H4 ">Virtualization in the Cloud</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#instance-types" class="toc-link node-name--H5 ">Instance types</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#benefits-of-vms-and-virtualization" class="toc-link node-name--H4 ">Benefits of VMs and virtualization</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#limitations-of-vms" class="toc-link node-name--H4 ">Limitations of VMs</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#containers-orchestration-kubernetes" class="toc-link node-name--H3 ">Containers &amp; orchestration (Kubernetes)</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#managed-container-services-eks-gke-aks" class="toc-link node-name--H3 ">Managed container services (EKS, GKE, AKS)</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#storage-systems-block-object-file" class="toc-link node-name--H3 ">Storage systems: Block, Object, File</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#object-storage" class="toc-link node-name--H4 ">Object Storage</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#block-storage" class="toc-link node-name--H4 ">Block storage</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#file-storageshared-file-systems" class="toc-link node-name--H4 ">File Storage/Shared File Systems</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#databases-and-warehouses" class="toc-link node-name--H4 ">Databases and warehouses</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#networking-in-the-cloud" class="toc-link node-name--H3 ">Networking in the cloud</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#vpc-virtual-private-cloudvirtual-network" class="toc-link node-name--H4 ">VPC (Virtual Private Cloud)/Virtual Network</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#subnets-and-availability-zones" class="toc-link node-name--H4 ">Subnets and availability zones</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#load-balancers-and-api-gateways" class="toc-link node-name--H4 ">Load Balancers and API Gateways</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#networking-architecture-example-for-ml-deployment" class="toc-link node-name--H4 ">Networking architecture example for ML deployment</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#identity-iam" class="toc-link node-name--H3 ">Identity &amp; IAM</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#iam" class="toc-link node-name--H4 ">IAM</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#service-roles-and-roles-for-pods" class="toc-link node-name--H4 ">Service roles and roles for Pods</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#security-groupsfirewall-rules" class="toc-link node-name--H4 ">Security groups/Firewall rules</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#principle-of-least-privilege" class="toc-link node-name--H4 ">Principle of least privilege</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#monitoring-logging-observability" class="toc-link node-name--H3 ">Monitoring, logging, observability</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#why-use-cloud-for-ml" class="toc-link node-name--H2 ">Why use Cloud for ML?</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#scalability-and-elasticity" class="toc-link node-name--H3 ">Scalability and elasticity</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#cost-efficiency-and-pay-as-you-go" class="toc-link node-name--H3 ">Cost efficiency and Pay-as-You-Go</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#managed-ecosystem-and-integration" class="toc-link node-name--H3 ">Managed ecosystem and integration</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#high-availability-and-redundancy" class="toc-link node-name--H3 ">High availability and redundancy</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#patterns-for-ml-workloads-in-cloud" class="toc-link node-name--H2 ">Patterns for ML workloads in Cloud</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#training-vs-inference-vs-batch" class="toc-link node-name--H3 ">Training vs Inference vs Batch</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#data-pipelines-storage" class="toc-link node-name--H3 ">Data pipelines &amp; storage</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#model-registry-versioning" class="toc-link node-name--H3 ">Model Registry &amp; versioning</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#inference-serving-patterns" class="toc-link node-name--H3 ">Inference serving patterns</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#autoscaling" class="toc-link node-name--H3 ">Autoscaling</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#deployment-strategies" class="toc-link node-name--H3 ">Deployment strategies</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#monitoring-and-detection" class="toc-link node-name--H3 ">Monitoring and Detection</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#reproducibility-auditability" class="toc-link node-name--H3 ">Reproducibility &amp; auditability</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#conclusion" class="toc-link node-name--H2 ">Conclusion</a></li></ol></div>
+
+
+</div>
+
+    
+    
+    <article class="post tag-hash-blog tag-mlops-crash-course-2 tag-mlops tag-deployment content post-access-paid">
+
+
+        
+      <h2 id="recap">Recap</h2><p>Before getting into Part 13 of this crash course, let’s quickly recap what we covered in the last part.</p><p>In Part 12, we explored key aspects of the deployment and monitoring phase of the MLOps lifecycle, focusing on container orchestration and deployment using Kubernetes.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-49.png" class="kg-image" alt="" loading="lazy" width="800" height="535" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-49.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-49.png 800w" sizes="(min-width: 720px) 720px"></figure><p>We began by exploring the foundational concepts essential for understanding Kubernetes. This included learning about container images and containers, the microservices architecture, service meshes, and the principles of immutable infrastructure.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-50.png" class="kg-image" alt="" loading="lazy" width="650" height="533" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-50.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-50.png 650w"></figure><p>After that, we introduced Kubernetes, understood why exactly we need it, and what exactly it could help us with.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-51.png" class="kg-image" alt="" loading="lazy" width="1000" height="398" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-51.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-51.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>Next, we dived into the architecture and core concepts of Kubernetes. This included understanding clusters, the control plane, nodes, and the key terminologies and components associated with each of these units.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-52.png" class="kg-image" alt="" loading="lazy" width="1000" height="467" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-52.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-52.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>Moving ahead, we explored how different components in Kubernetes interact with each other and form workflows and control loops (desired state → actual state → reconciliation).</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-53.png" class="kg-image" alt="" loading="lazy" width="828" height="730" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-53.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-53.png 828w" sizes="(min-width: 720px) 720px"></figure><p>We also explored key operational features of Kubernetes, including service discovery, routing, rolling updates, failure handling, and autoscaling in brief.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-54.png" class="kg-image" alt="" loading="lazy" width="987" height="563" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-54.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-54.png 987w" sizes="(min-width: 720px) 720px"></figure><p>Finally, we went hands-on, understanding how exactly we orchestrate and deploy our containerized application with Kubernetes, in a local setup.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-55.png" class="kg-image" alt="" loading="lazy" width="592" height="201"></figure><p>If you haven’t explored Part 12 yet, we strongly recommend going through it first since it lays the conceptual scaffolding that’ll help you better understand what we’re about to dive into here.</p><p>Read it here:</p><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="https://www.dailydoseofds.com/mlops-crash-course-part-12/"><div class="kg-bookmark-content"><div class="kg-bookmark-title">The Full MLOps Blueprint: Model Deployment—Part B</div><div class="kg-bookmark-description">MLOps and LLMOps Crash Course—Part 12.</div><div class="kg-bookmark-metadata"><img class="kg-bookmark-icon" src="./mlops-crash-course-part-13_files/logo-subsatck2-1-147.svg" alt=""><span class="kg-bookmark-author">Daily Dose of Data Science</span><span class="kg-bookmark-publisher">Avi Chawla</span></div></div><div class="kg-bookmark-thumbnail"><img src="./mlops-crash-course-part-13_files/Sanyog-MLOps_-_I-7.png" alt="" onerror="this.style.display = &#39;none&#39;"></div></a></figure><p>In this chapter, we’ll continue our discussion on the deployment phase, diving deeper into important concepts, specifically cloud.</p><p>We'll cover the core cloud computing concepts, agnostic of any specific vendor (for now, at least).</p><p>As always, every notion will be explained through clear examples and walkthroughs to develop a solid understanding.</p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">This chapter assumes a solid foundation in software engineering, computer networks and OS related concepts. Rather than revisiting these foundational topics, the chapter emphasizes the systems-oriented aspects.</div></div><p>Let’s begin!</p><hr><h2 id="basics-how-the-internet-works">Basics: how the internet works</h2><p>Every cloud solution is built on fundamental networking principles. Let's discuss the most fundamental ones, briefly and abstractly:</p><h3 id="ip-addresses-and-domain-names">IP Addresses and domain names</h3><p>Every device connected to the internet requires an IP address. We primarily deal with two types: IPv4 and IPv6.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-115-1.png" class="kg-image" alt="" loading="lazy" width="1024" height="448" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-115-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-115-1.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-115-1.png 1024w" sizes="(min-width: 720px) 720px"></figure><p>IPv6 was created because IPv4 addresses were running out as the Internet grew.</p><p>Since humans are not good at remembering long numbers, we use domain names instead.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-58.png" class="kg-image" alt="" loading="lazy" width="708" height="171" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-58.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-58.png 708w"></figure><p>This is where DNS (Domain Name System) comes in, which converts user-friendly domain names into the numerical IP addresses that computers understand.</p><h3 id="data-movement">Data movement</h3><p>When you load a website or send an email, data doesn't move as one big chunk. Your information is broken down into small pieces called packets.</p><p>Each packet carries the data itself, along with crucial information like the destination IP and the source IP.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-70.png" class="kg-image" alt="" loading="lazy" width="1006" height="177" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-70.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-70.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-70.png 1006w" sizes="(min-width: 720px) 720px"></figure><p>The system managing this transfer is TCP/IP. TCP handles breaking down the data and ensuring it arrives correctly, while IP ensures the packets reach the right destination.</p><hr><h2 id="cloud-computing-definition-and-characteristics">Cloud computing: definition and characteristics</h2><p>Cloud computing refers to delivering computing services (e.g., servers, storage, databases, networking, software, analytics) over the internet (“the cloud”), enabling users and organizations to access them on demand.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-59.png" class="kg-image" alt="" loading="lazy" width="960" height="755" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-59.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-59.png 960w" sizes="(min-width: 720px) 720px"></figure><p>Rather than owning physical hardware, organizations can rent virtualized resources, scale them elastically, and pay only for what they use.</p><p>The idea traces back to time-sharing and virtualization in the 1960s and ’70s. More recently, cloud providers such as AWS, Azure, and Google Cloud made on-demand services scalable and accessible to developers and enterprises.</p><h3 id="nist-essential-characteristics">NIST essential characteristics</h3><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-60-1.png" class="kg-image" alt="" loading="lazy" width="284" height="133"></figure><p>According to NIST (National Institute of Standards and Technology), any cloud system should exhibit the following five essential characteristics:</p><ul><li>On-demand self-service: Users can provision computing capabilities (e.g., server time, storage) on their own without requiring interaction with the provider’s staff.</li><li>Broad network access: Services are accessible over the network via standard mechanisms (e.g., HTTP, APIs) from heterogeneous client platforms (laptops, mobiles, etc.).</li><li>Resource pooling/multi-tenancy: The provider’s resources are pooled to serve multiple consumers, dynamically assigning and reassigning resources (e.g., CPU, memory, storage) based on demand.</li><li>Rapid elasticity/scalability: Capabilities can be elastically scaled up or down to meet fluctuating demands; to the consumer, the available resources seem unlimited.</li><li>Measured service (metering): Resource usage is monitored, controlled, and reported, enabling pay-per-use or chargeback models.</li></ul><p>To read about it in more detail, you can check out the attached official publication from NIST:</p><div class="kg-card kg-file-card"><a class="kg-file-card-container" href="https://www.dailydoseofds.com/content/files/2025/10/nistspecialpublication800-145.pdf" title="Download" download=""><div class="kg-file-card-contents"><div class="kg-file-card-title">nistspecialpublication800-145</div><div class="kg-file-card-caption"></div><div class="kg-file-card-metadata"><div class="kg-file-card-filename">nistspecialpublication800-145.pdf</div><div class="kg-file-card-filesize">84 KB</div></div></div><div class="kg-file-card-icon"><svg viewBox="0 0 24 24"><defs><style>.a{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}</style></defs><title>download-circle</title><polyline class="a" points="8.25 14.25 12 18 15.75 14.25"></polyline><line class="a" x1="12" y1="6.75" x2="12" y2="18"></line><circle class="a" cx="12" cy="12" r="11.25"></circle></svg></div></a></div><p>These characteristics help distinguish cloud computing from traditional hosting or fixed-capacity infrastructure.</p><hr><h2 id="cloud-computing-types-of-models">Cloud computing: types of models</h2><p>In the context of cloud computing, a model refers to a structured approach to how cloud services are delivered, deployed, billed, etc.</p><p>These models help organizations choose the right combination of flexibility and control based on their needs.</p><p>Let's explore the different types of cloud computing models that influence how cloud resources are consumed, how they are paid for, and how responsibilities are divided:</p><h3 id="deployment-models">Deployment models</h3><p>Cloud deployment refers to how cloud services are provided to end users. Common models include:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-64.png" class="kg-image" alt="" loading="lazy" width="2000" height="615" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-64.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-64.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-64.png 1600w, https://www.dailydoseofds.com/content/images/2025/10/image-64.png 2052w" sizes="(min-width: 720px) 720px"></figure><ul><li>Public cloud: Services are offered over the public internet and shared among multiple tenants.</li><li>Private cloud: Infrastructure dedicated to a single organization (on-premises or hosted), offering more control and isolation.</li><li>Hybrid cloud: A combination of public and private clouds, allowing data/workloads to move between both environments.</li><li>Multi-cloud: Using multiple cloud providers for redundancy, best-of-breed services, or avoiding vendor lock-in.</li></ul><h3 id="service-models-iaas-paas-saas">Service models: IaaS, PaaS, SaaS</h3><p>Service models describe how much abstraction the cloud provider handles versus what the user must manage.</p><ul><li>Infrastructure as a Service (IaaS): Users provision virtual machines, storage, networks, and other fundamental resources, and must manage OS, runtime, and applications. The provider handles virtualization, physical infrastructure, and basic networking.</li><li>Platform as a Service (PaaS): Users deploy applications using provider-managed runtimes, middleware, and operating systems. The provider handles scaling, patching, and much of the infrastructure plumbing.</li><li>Software as a Service (SaaS): Fully managed applications that the user can consume without worrying about underlying infrastructure (e.g., Gmail).</li></ul><p>The diagram below effectively summarizes the above-discussed characteristics:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-62.png" class="kg-image" alt="" loading="lazy" width="1127" height="720" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-62.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-62.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-62.png 1127w" sizes="(min-width: 720px) 720px"></figure><h3 id="cloud-economics-cost-models">Cloud economics &amp; cost models</h3><p>One of the central attractions of cloud is cost model flexibility:</p><ul><li>Pay-as-you-go: Users pay for actual usage (compute hours, storage size, network in/out).</li><li>Reserved/committed capacity: Discounts for committing to use resources over a period.</li><li>Spot/preemptible instances: Very low-cost compute nodes that can be reclaimed (ideal for training or batch workloads).</li><li>Cost leakage &amp; overprovisioning: Without good governance, unused resources or idle services can accumulate costs.</li></ul><p>A good mental model is: cloud resources = utility resources (like electricity). You want to scale dynamically and only pay for what you use.</p><h3 id="shared-responsibility-model">Shared responsibility model</h3><p>In the cloud, security and operational responsibilities are shared between the provider and the user. The precise boundaries differ by service model (IaaS, PaaS, SaaS).</p><p>Typically:</p><ul><li>The provider ensures physical infrastructure, network, host OS, and hypervisor security.</li><li>The user handles secure configuration of the OS, network rules, application logic, data encryption, IAM, and compliance.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-65.png" class="kg-image" alt="" loading="lazy" width="1494" height="719" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-65.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-65.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-65.png 1494w" sizes="(min-width: 720px) 720px"></figure><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">IAM, or Identity and Access Management, is&nbsp;a framework of processes, policies, and technologies that ensures the right people and machines have the right access to the right resources at the right time.&nbsp;It involves verifying who a user is (identity) and controlling what they are allowed to do (access).</div></div><p>Understanding which side is responsible for which layer is critical to avoid gaps.</p><p>Now that we have understood the different models, let's go ahead and study the different cloud infrastructure components.</p><hr><h2 id="cloud-infrastructure-components">Cloud infrastructure components</h2><p>Let’s enumerate the fundamental building blocks of the cloud:</p><ul><li>Compute: Virtual machines, containers, serverless runtimes, GPU/TPU instances</li><li>Storage &amp; data layer: Object storage, block storage, file systems, data lakes</li><li>Networking: Virtual private network, subnets, routing, NAT, ingress, load balancers</li><li>Identity &amp; Access Control: IAM roles, groups, policies</li><li>Monitoring &amp; observability: Metrics, logs, traces, dashboards</li><li>Security &amp; compliance: Encryption, network segmentation, auditing</li></ul><h3 id="virtual-machines-hypervisors-and-virtualization">Virtual Machines, hypervisors, and virtualization</h3><p>At the core of modern cloud computing lies virtualization, the process of creating a virtual version of something, such as a server, storage device, or network resource.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-66.png" class="kg-image" alt="" loading="lazy" width="702" height="351" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-66.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-66.png 702w"></figure><p>Virtualization enables multiple isolated computing environments to coexist on a single physical machine.</p><h4 id="hypervisor">Hypervisor</h4><p>A hypervisor, also known as a Virtual Machine Monitor (VMM), is the software (or firmware) layer that sits between the physical hardware and virtual machines.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-67-1.png" class="kg-image" alt="" loading="lazy" width="1429" height="513" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-67-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-67-1.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-67-1.png 1429w" sizes="(min-width: 720px) 720px"></figure><p>Its primary role is to abstract the physical hardware and allocate computing resources (CPU, memory, disk, and network) to multiple virtual machines (VMs).</p><p>There are two main types of hypervisors:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-71-1.png" class="kg-image" alt="" loading="lazy" width="824" height="664" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-71-1.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-71-1.png 824w" sizes="(min-width: 720px) 720px"></figure><ul><li>Type 1 (Bare-metal Hypervisors): These run directly on the host's hardware and manage guest operating systems without a host OS. Examples include:<ul><li>VMware ESXi</li><li>Microsoft Hyper-V</li><li>KVM (Kernel-based Virtual Machine)</li><li>Xen</li></ul></li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-68-1.png" class="kg-image" alt="" loading="lazy" width="1080" height="328" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-68-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-68-1.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-68-1.png 1080w" sizes="(min-width: 720px) 720px"></figure><ul><li>Type 2 (Hosted Hypervisors): These run on top of a host operating system, just like any other application. Examples:<ul><li>Oracle VirtualBox</li><li>VMware Workstation</li><li>Parallels Desktop</li></ul></li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-69-1.png" class="kg-image" alt="" loading="lazy" width="1111" height="349" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-69-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-69-1.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-69-1.png 1111w" sizes="(min-width: 720px) 720px"></figure><h4 id="how-virtual-machines-work">How virtual machines work</h4><p>A Virtual Machine is a complete emulation of a physical computer.</p><p>It includes:</p><ul><li>Virtual CPU (vCPU): Emulates physical CPU cycles allocated from the host.</li><li>Virtual Memory: Allocated from the host’s RAM.</li><li>Virtual Storage: Uses disk images to emulate storage.</li><li>Virtual Network Interface: Connects to the virtual or physical network.</li></ul><p>Each VM runs its own full operating system (guest OS), which is independent from others.</p><p>This allows for a strong isolation between VMs and the ability to run different OS types on the same hardware (e.g., Linux VM on Windows host).</p><h4 id="virtualization-in-the-cloud">Virtualization in the Cloud</h4><p>Cloud providers (AWS, Azure, Google Cloud) use virtualization extensively to offer compute resources on demand. These resources are abstracted into instance types.</p><h5 id="instance-types">Instance types</h5><p>An instance type is essentially a predefined VM configuration with specific resources:</p><p>For example, in AWS EC2:</p><ul><li><code>t3.micro</code>: 2 vCPU, 1 GiB RAM (burstable)</li><li><code>m5.large</code>: 2 vCPU, 8 GiB RAM (general purpose)</li><li><code>c5.xlarge</code>: 4 vCPU, 8 GiB RAM (compute-optimized)</li></ul><p>Cloud users choose an instance based on workload needs: memory-intensive, compute-heavy, or storage-optimized.</p><h4 id="benefits-of-vms-and-virtualization">Benefits of VMs and virtualization</h4><ul><li>Isolation: Each VM is sandboxed; failures or security breaches in one VM don’t affect others.</li><li>Resource allocation: Physical resources are efficiently shared and allocated dynamically.</li><li>VM migration: VMs can be moved between physical hosts with minimal downtime (live migration).</li><li>Snapshot &amp; cloning: Easy to create snapshots or clone VMs for backup and scalability.</li><li>Multi-tenancy: Enables multiple users or businesses to share the same physical infrastructure securely.</li></ul><h4 id="limitations-of-vms">Limitations of VMs</h4><p>While powerful, VMs are not lightweight:</p><ul><li>Overhead: Each VM runs a full OS, consuming CPU, memory, and storage.</li><li>Boot time: VMs typically take longer to boot compared to containers.</li><li>Resource waste: Unused allocated resources in a VM still count as in-use, reducing efficiency.</li><li>Limited scalability speed: Spinning up or scaling VMs is slower than container-based deployments.</li></ul><p>Due to these issues, containers are often preferred since they can run in a more lightweight manner compared to VMs.</p><h3 id="containers-orchestration-kubernetes">Containers &amp; orchestration (Kubernetes)</h3><p>We have already covered Docker and Kubernetes in detail in previous chapters.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-72.png" class="kg-image" alt="" loading="lazy" width="1563" height="555" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-72.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-72.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-72.png 1563w" sizes="(min-width: 720px) 720px"></figure><p>Here’s how they fit in the cloud:</p><ul><li>A container is a lightweight packaging of the application + dependencies, running isolated but sharing the host OS kernel.</li><li>Kubernetes is an orchestration layer that schedules containers (pods), handles scaling, rolling updates, service discovery, and more.</li><li>In cloud environments, Kubernetes often runs on VMs or managed container services.</li></ul><h3 id="managed-container-services-eks-gke-aks">Managed container services (EKS, GKE, AKS)</h3><p>Rather than manually deploying and managing the Kubernetes control plane, cloud providers offer managed Kubernetes services:</p><ul><li>Amazon EKS: AWS’s managed Kubernetes service.</li><li>Google GKE: Google Cloud's managed Kubernetes service.</li><li>Azure AKS: Microsoft Azure's managed Kubernetes service.</li></ul><p>These services offer reliability, control-plane maintenance, autoscaling, integration with cloud tooling, and more.</p><h3 id="storage-systems-block-object-file">Storage systems: Block, Object, File</h3><p>Workloads require different types of data storage:</p><ul><li>Object storage (e.g. AWS S3, Azure Blob, GCS): Stores blobs with metadata, highly durable and scalable.</li><li>Block storage: Virtual disks that behave like raw disks (EBS in AWS). Useful for fast, persistent storage attached to compute nodes.</li><li>File storage/shared file systems: Network file systems (e.g., EFS, NFS) that support file semantics and shared access.</li><li>Databases/data warehouses: For structured data, metadata, etc.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-73.png" class="kg-image" alt="" loading="lazy" width="2000" height="741" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-73.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-73.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-73.png 1600w, https://www.dailydoseofds.com/content/images/2025/10/image-73.png 2154w" sizes="(min-width: 720px) 720px"></figure><p>Choosing the right layer depends on throughput, access patterns, concurrency, and cost.</p><p>Let’s expand each storage type and the reasoning behind choosing them, focusing on their architecture, use cases, and trade-offs:</p><h4 id="object-storage">Object Storage</h4><p>Cloud object storage, such as Amazon S3, Azure Blob Storage, or Google Cloud Storage, is built for handling massive amounts of unstructured data. Unlike traditional file or block storage, it organizes data as objects, not files within folders or sectors on disks.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-74.png" class="kg-image" alt="" loading="lazy" width="570" height="339"></figure><p>Each object contains three key components:</p><!--members-only--><ol><li>The data itself (a blob, like an image, video, or backup file).</li><li>The metadata, which describes the data and can include system attributes or custom tags.</li><li>A unique identifier, allowing the system to quickly locate and retrieve it.</li></ol><p>There’s no concept of nested directories here. Instead, everything exists in a flat namespace, grouped logically into buckets or containers. This design is what enables object storage systems to scale almost infinitely across distributed nodes while maintaining high durability and availability.</p><p>Access typically happens over HTTP-based APIs using operations like GET, PUT, and DELETE, making it easy to integrate with modern applications and cloud-native workloads.</p><p>It shines in scenarios where data is written once and read many times, like data lakes, media repositories, log archives, backups, or static website hosting.</p><p>Of course, this architecture comes with trade-offs.</p><p>For instance, object storage isn’t meant for transactional workloads or frequent small updates. Latency is generally higher than block storage (discussed below), and you can’t modify data in place (an update means replacing the entire object).</p><p>In short, object storage is the backbone for scalable, durable, and cost-efficient cloud data management, and it is ideal when volume and reliability matter more than low-latency updates.</p><h4 id="block-storage">Block storage</h4><p>Block storage, offered as Amazon EBS, Azure Disk Storage, or Google Persistent Disk, provides the foundation for high-performance, low-latency workloads in the cloud.</p><p>It works by storing data in fixed-size blocks, just like traditional hard drives. These blocks form the building blocks (pun intended) of virtual disks that can be mounted to your operating system.<strong> </strong></p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-76.png" class="kg-image" alt="" loading="lazy" width="260" height="411"></figure><p>Once mounted, the OS takes over. It formats the block device and manages its own file system (like ext4, NTFS, or XFS). This makes block storage behave almost identically to a local drive, except that it’s virtualized and network-attached.</p><p>The big advantage of this design is speed and consistency.</p><p>Block storage delivers low latency and high IOPS (Input/Output Operations per Second), making it ideal for workloads that require fast, random read/write access.</p><p>Think of databases like MySQL or PostgreSQL, OS boot disks for virtual machines, or transactional systems where every millisecond counts.</p><p>Of course, this performance comes with a few trade-offs. Each volume typically has limited capacity and is tied to a single compute instance, meaning it can’t be easily shared across multiple servers.</p><p>It’s also more expensive per GB compared to object storage, but the payoff is predictable performance and direct control at the disk level.</p><p>In essence, block storage is what you reach for when you need speed, reliability, and fine-grained control over data access. It is the cloud equivalent of having a dedicated SSD for your most demanding workloads.</p><h4 id="file-storageshared-file-systems">File Storage/Shared File Systems</h4><p>File storage, which is often seen in services like Amazon EFS, Azure Files, Google Filestore, or classic protocols like NFS and SMB, provides a familiar way to store and access data: as files organized in folders.</p><p>It mirrors how most developers and teams already work on their local systems, but makes that experience available across multiple machines in the cloud.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-78.png" class="kg-image" alt="" loading="lazy" width="560" height="301"></figure><p>Unlike object storage (which treats data as blobs) or block storage (which deals with raw volumes), file storage uses a hierarchical structure of directories and files.</p><p>It supports traditional file system semantics such as permissions, locks, and shared access, making collaboration seamless for multiple users or services.</p><p>Under the hood, it relies on network file system protocols, specifically NFS for Linux environments and SMB for Windows, to enable this shared access.</p><p>What makes file storage unique is its balance between usability and performance.</p><p>It allows multiple clients to concurrently read and write to the same data, all while preserving familiar file operations like <code>open</code>, <code>read</code>, <code>write</code>, or <code>rename</code>.</p><p>This makes it ideal for shared project directories, enterprise home folders, content management systems, or machine learning pipelines where teams need to access common datasets simultaneously.</p><p>Of course, there are trade-offs. Since file storage depends on network communication, performance can vary with network throughput and latency. It’s generally more expensive and less scalable than object storage, and not designed for ultra-high-throughput or massive-scale data lake workloads.</p><p>In short, file storage sits neatly between the flexibility of block storage and the scalability of object storage by offering a shared, structured, and user-friendly solution for teams that value collaboration and simplicity in managing data.</p><h4 id="databases-and-warehouses">Databases and warehouses</h4><p>Databases and data warehouses such as MySQL, PostgreSQL, MongoDB, Snowflake, BigQuery, or Redshift sit one layer above raw storage systems. They don’t just store data but rather give it structure, meaning, and accessibility.</p><figure class="kg-card kg-image-card kg-card-hascaption"><img src="./mlops-crash-course-part-13_files/image-80.png" class="kg-image" alt="" loading="lazy" width="601" height="369" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-80.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-80.png 601w"><figcaption><span style="white-space: pre-wrap;">SQL server database architecture</span></figcaption></figure><p>At their core, these systems are built on top of block or object storage, but they add a powerful organizational layer.</p><p>Traditional relational databases (like MySQL or PostgreSQL) store information in tables, rows, and columns, with relationships defined through keys and indexes. NoSQL databases (like MongoDB) take a different approach, managing documents or key-value pairs to handle unstructured or semi-structured data more flexibly.</p><p>Data warehouses extend these ideas for analytical workloads. They’re optimized not for handling real-time transactions but for scanning and aggregating huge volumes of data, which are ideal for dashboards, reports, and large-scale analytics.</p><p>Systems like Snowflake, BigQuery, and Redshift are designed to run complex queries efficiently across petabytes of information.</p><p>Beyond raw storage, these platforms provide query languages (like SQL), transactions, indexing, concurrency control, and schema enforcement; essentially everything needed to ensure data integrity, consistency, and fast access.</p><p>They also manage metadata, user permissions, and schema evolution, making them the backbone of modern data-driven systems.</p><p>Naturally, this sophistication comes with trade-offs (like all the storage types discussed above). Databases and warehouses are more complex and costly than simple storage services. They require thoughtful schema design, indexing strategies, and maintenance, and are not ideal for storing raw files or unstructured blobs of data.</p><hr><p>Now that we've understood each storage type, overall, to summarize four concise points:</p><ul><li>Object storage is the most scalable and cost-effective for unstructured or archival data.</li><li>Block storage is best for performance-sensitive workloads requiring low latency and frequent updates.</li><li>File storage is useful when multiple systems need to share files with traditional file system semantics.</li><li>Databases and warehouses operate at a higher abstraction layer for structured data and complex queries.</li></ul><p>Also note that, depending upon the application, the optimal choice often involves combining these. For example, using block storage for database volumes, object storage for backups, and file storage for shared development data.</p><h3 id="networking-in-the-cloud">Networking in the cloud</h3><p>Cloud networking forms the backbone of all communication between compute, storage, and external users.</p><p>Unlike traditional on-premise data centers, cloud networks are software-defined. This means that every aspect of connectivity, including IP addressing, routing, and isolation, can be configured programmatically.</p><p>It brings enormous flexibility since you can define private networks, control how traffic flows between components, and scale network capacity as your workloads grow.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-113.png" class="kg-image" alt="" loading="lazy" width="687" height="714" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-113.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-113.png 687w"></figure><p>At the heart of this system are a few key building blocks:</p><ul><li>VPC (virtual private cloud) or virtual network: This is an isolated environment that serves as your own private data center within the cloud.</li><li>Subnets and availability zones: These divide your network into smaller, manageable sections and distribute resources across different physical locations to improve reliability.</li><li>Load balancers and API gateways: These handle how incoming requests are distributed across servers or services, ensuring stability and performance.</li></ul><p>For machine learning deployments, networking decisions have a real impact. Low latency is crucial for real-time inference APIs, high bandwidth is needed for moving large models or datasets, and isolation ensures workloads remain secure and compliant.</p><p>Next, let’s break down cloud networking and its importance, focusing on each key component and how it affects system performance and reliability.</p><h4 id="vpc-virtual-private-cloudvirtual-network">VPC (Virtual Private Cloud)/Virtual Network</h4><p>A VPC is essentially your private, customizable network inside a cloud provider’s infrastructure, which is the foundation for everything else.</p><p>Services like AWS VPC, Azure Virtual Network (VNet), and Google Cloud VPC let you carve out a dedicated portion of the provider’s massive network and define how your resources connect within it.</p><p>Inside a VPC, you can:</p><ul><li>Define your IP address range (using a CIDR block).</li><li>Create subnets to organize and isolate workloads.</li><li>Control connectivity, whether you want resources exposed to the public internet or limited to private, internal traffic.</li></ul><p>The main goal here is isolation and control.</p><p>A VPC ensures that your workloads are separated from others running on the same cloud platform, while still giving you full control over traffic flow and security. It allows secure communication between your compute instances, databases, and containers without opening unnecessary access to the outside world.</p><p>For instance, when deploying an ML inference API, you might place it inside a VPC that only allows traffic from a trusted API Gateway or a specific set of IP ranges.</p><p>This ensures performance remains consistent while keeping your deployment safe from unauthorized access.</p><h4 id="subnets-and-availability-zones">Subnets and availability zones</h4><p>Once you’ve created a Virtual Private Cloud (VPC), the next step is dividing it into smaller, manageable sections called subnets. Each subnet represents a distinct network segment with its own routing rules and accessibility level.</p><p>Typically, you’ll configure two main types:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-114.png" class="kg-image" alt="" loading="lazy" width="1088" height="450" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-114.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-114.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-114.png 1088w" sizes="(min-width: 720px) 720px"></figure><p>This segmentation isn’t just for organizational purposes. Rather, it’s a key part of cloud security and performance management. Subnets allow you to tightly control traffic flow, enforce access boundaries, and design layered security zones that minimize the blast radius in case of a compromise.</p><p>Beyond subnets, cloud providers divide each region into multiple Availability Zones (AZs), which are physically separate data centers that operate independently but are connected through high-speed networks.</p><p>By distributing workloads across multiple AZs, you eliminate single points of failure and significantly increase fault tolerance and uptime.</p><p>In practice, that means if one data center experiences an outage, your workloads in another AZ can seamlessly take over, keeping your applications and your ML systems online without interruption. Together, subnets and AZs form the backbone of resilient, secure, and scalable cloud networking.</p><h4 id="load-balancers-and-api-gateways">Load Balancers and API Gateways</h4><p>Once your network is structured, the next challenge is efficiently managing traffic to your applications, and that’s precisely where load balancers and API gateways come in.</p><p>As the name suggests, a load balancer (LB) acts as the intelligent traffic manager of your system.</p><p>It distributes incoming requests across multiple compute instances or containers, ensuring that no single resource becomes a bottleneck. This not only boosts performance but also adds fault tolerance.</p><p>So if one instance goes down, traffic automatically shifts to healthy ones.</p><p>In machine learning deployments, this becomes especially important. When serving large models (say, a large language model), a load balancer distributes inference requests across multiple GPUs, allowing your service to handle thousands of concurrent predictions smoothly.</p><p>An API Gateway, on the other hand, sits at the entry point of your architecture. It routes client requests, manages authentication, enforces rate limits, and even performs tasks like caching or request transformation before forwarding traffic to backend services.</p><p>In ML pipelines, this ensures that only authenticated clients can access your inference endpoints, while also keeping the interface clean and version-controlled for different models or APIs.</p><p>Together, load balancers and API gateways bring reliability, security, and flexibility to large-scale ML systems.</p><p>They ensure that your model-serving architecture is production-ready, scalable, and built for the unpredictable demands of real-world traffic.</p><h4 id="networking-architecture-example-for-ml-deployment">Networking architecture example for ML deployment</h4><p>The diagram below shows what a typical machine learning deployment looks like in the cloud.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-112.png" class="kg-image" alt="" loading="lazy" width="893" height="577" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-112.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-112.png 893w" sizes="(min-width: 720px) 720px"></figure><p>Each layer plays a specific role in ensuring the system is secure, scalable, and efficient from the moment a user sends a request to the point where a prediction is returned.</p><p>It starts with users or clients, who send inference requests to your model endpoint. These requests first pass through the API Gateway, which acts as the system’s front door. The gateway handles authentication, routing, and rate limiting, ensuring that only authorized clients can access your models and that no single client overwhelms the system.</p><p>Next comes the Load Balancer, which intelligently distributes incoming traffic across multiple ML inference servers. This step is crucial for maintaining high availability and consistent response times, especially under heavy load. For example, when serving a large LLM endpoint, the load balancer ensures inference requests are spread evenly across GPUs running in parallel.</p><p>Each inference server accesses the required model artifacts from object storage services such as Amazon S3 or Azure Blob Storage. This decoupling of model storage from compute enables easy versioning, faster rollbacks, and flexible scaling since you can spin up more inference servers without duplicating model files.</p><p>All of this operates inside a Virtual Private Cloud (VPC), which isolates the entire setup into a secure environment. Within the VPC, subnets separate public-facing components (like the API Gateway and Load Balancer) from private ones (like inference servers and databases), providing both performance and security benefits.</p><p>In essence, this example should highlight that cloud networking defines how resources communicate securely, efficiently, and reliably. For machine learning systems, well-designed networking ensures low-latency inference, efficient data movement, and high availability.</p><h3 id="identity-iam">Identity &amp; IAM</h3><p>In the cloud, identity and access management is the foundation that determines who can do what, where, and how.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/Gemini_Generated_Image_azkbxaazkbxaazkb-1.png" class="kg-image" alt="" loading="lazy" width="1275" height="672" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/Gemini_Generated_Image_azkbxaazkbxaazkb-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/Gemini_Generated_Image_azkbxaazkbxaazkb-1.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/Gemini_Generated_Image_azkbxaazkbxaazkb-1.png 1275w" sizes="(min-width: 720px) 720px"></figure><p>A single misconfigured permission can expose sensitive data or allow unauthorized access to critical systems. That’s why properly designing your IAM structure is essential to building secure, compliant, and auditable cloud environments.</p><h4 id="iam">IAM</h4><p>IAM is a framework for managing identities, roles, and permissions. It defines who can access which resources and what actions they’re allowed to perform.</p><p>At its core, IAM revolves around four key components: users, groups, roles, and policies.</p><ul><li>Users represent individual identities, like people or systems that need to interact with cloud resources. For example, a data engineer might need access to a storage bucket for ETL operations.</li><li>Groups are collections of users who share similar responsibilities, allowing you to manage permissions collectively rather than individually. A “developers” group, for instance, might have access to deploy code but not modify billing settings.</li><li>Roles define what actions can be performed and can be temporarily assumed by users, applications, or services. For example, an ML training job might assume a role that grants access to read training data from an S3 bucket.</li><li>Policies are the actual rules that govern access. These are written as JSON documents specifying what’s allowed or denied on specific resources. For example, a policy could allow only <code>GetObject</code> actions on a specific bucket, but deny <code>DeleteObject</code>.</li></ul><p>Together, these components enforce the principle of least privilege, ensuring that every entity operates within a tightly scoped boundary of permissions. This minimizes the risk of accidental data exposure or malicious misuse.</p><p>IAM also plays a critical role in compliance and accountability. With centralized permission management and built-in auditing and logging, organizations can track who accessed what, when, and why, which is essential for adhering to regulations like GDPR or SOC 2.</p><h4 id="service-roles-and-roles-for-pods">Service roles and roles for Pods</h4><p>Beyond users and teams, IAM also governs how services and applications access resources securely, which is another crucial aspect of production ML systems.</p><p><strong>Service Roles (Cloud Compute):</strong></p><p>Cloud services like EC2, Lambda, or Vertex AI can be assigned roles directly, allowing them to access resources like databases, queues, or secret managers without embedding credentials in code.</p><p>For instance, an EC2 instance can assume a role that permits it to read from AWS Secrets Manager to retrieve database credentials securely, with no hardcoded API keys, no manual secrets management.</p><p><strong>Roles for Pods (Kubernetes / AWS EKS):</strong></p><p>In containerized environments such as Kubernetes, the concept extends even further. Individual pods can assume specific IAM roles that grant only the permissions they need. This provides:</p><ul><li>Fine-grained access control, where each pod operates independently.</li><li>Credential isolation, so no secrets are shared across pods.</li><li>Reduced risk exposure, since a compromised pod cannot escalate privileges.</li></ul><p>For example, a pod serving an ML inference model might have a role that allows it to only read model files from object storage but not modify or delete them. This approach keeps security tight while maintaining operational flexibility.</p><h4 id="security-groupsfirewall-rules">Security groups/Firewall rules</h4><p>Security groups and firewall rules act as your first line of defense at the network level. Think of them as virtual firewalls attached to your cloud resources, controlling what traffic gets in and what goes out.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-109.png" class="kg-image" alt="" loading="lazy" width="777" height="93" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-109.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-109.png 777w" sizes="(min-width: 720px) 720px"></figure><p>There are a few key elements in this setup.</p><p>Inbound rules determine which external requests can reach your instance or pod, while outbound rules define which destinations your resources can connect to. Together, they decide the exact pathways your network traffic is allowed to take.</p><p>To keep things secure, always follow the principle of least privilege. Allow access only to the specific ports and IP ranges you truly need, and block everything else. Combine these rules with IAM policies for a layered defense strategy.</p><p>For example, if you’re running an inference API, configure it so that only your load balancer can send HTTP or HTTPS requests to the server, not the entire public internet.</p><h4 id="principle-of-least-privilege">Principle of least privilege</h4><p>The most important mindset in cloud security is the principle of least privilege. In a gist, every identity, whether a human, VM, or pod, should have only the permissions it absolutely needs and nothing more.</p><p>This minimizes the attack surface, reduces the risk of accidental data modification, and makes compliance audits straightforward. For example, an ML training job may need read access to input datasets but should never have permission to delete or overwrite them.</p><p>Applying least privilege might sound tedious, but it’s what turns a functional system into a secure and resilient one.</p><h3 id="monitoring-logging-observability">Monitoring, logging, observability</h3><p>Observability is the backbone of trustworthy production systems, providing the necessary insight to maintain reliability and performance.</p><p>It encompasses the collection and analysis of metrics and telemetry data, such as CPU usage, memory consumption, disk I/O, and network activity.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-84-1.png" class="kg-image" alt="" loading="lazy" width="1000" height="573" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-84-1.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-84-1.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>Along with that, model-level metrics like latency and error rates are also part of metric and telemetry data.</p><p>Logs, ranging from application and system logs to audit logs, offer detailed, contextual information that aids in debugging and incident analysis.</p><p>Dashboards, alerts, and anomaly detection mechanisms help teams monitor systems in real time and respond proactively to issues.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-106.png" class="kg-image" alt="" loading="lazy" width="989" height="490" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-106.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-106.png 989w" sizes="(min-width: 720px) 720px"></figure><p>Centralized tools like Prometheus, Grafana, and CloudWatch play a crucial role in aggregating, visualizing, and managing this data effectively.</p><p>Next, let's see the aspects of why understanding cloud, even though abstractly, is useful for machine learning.</p><hr><h2 id="why-use-cloud-for-ml">Why use Cloud for ML?</h2><p>Understanding why the cloud is a good fit for ML helps shape architectural decisions.</p><h3 id="scalability-and-elasticity">Scalability and elasticity</h3><p>Machine learning workloads are rarely constant. They fluctuate between heavy computation during model training and relatively lighter workloads during inference.</p><p>The cloud provides both horizontal and vertical scalability to handle this variation.</p><ul><li>Horizontal scaling means adding or removing compute nodes dynamically (for example, scaling out multiple GPUs or instances during a large batch training job).</li><li>Vertical scaling means increasing or decreasing the size or capacity of a single machine (for example, upgrading an instance to one with more memory or GPUs).</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-105.png" class="kg-image" alt="" loading="lazy" width="1024" height="448" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-105.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-105.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-105.png 1024w" sizes="(min-width: 720px) 720px"></figure><p>In practice, during peak workloads like hyperparameter tuning or large model training, the system can automatically scale up to hundreds of nodes, and after the task completes, the infrastructure can scale back down, saving costs.</p><p>This elasticity allows teams to run ML workloads of any size without investing in fixed, expensive infrastructure.</p><h3 id="cost-efficiency-and-pay-as-you-go">Cost efficiency and Pay-as-You-Go</h3><p>One of the strongest reasons to use cloud for ML is its economic flexibility.</p><p>Traditional on-premise setups require purchasing and maintaining costly GPU servers that often remain underutilized. Cloud computing, however, follows a "pay-as-you-go" or "pay-for-what-you-use" model:</p><ul><li>You only pay for compute, storage, and networking resources while they are in use.</li><li>You can automatically shut down idle instances or spin up temporary clusters for experiments.</li></ul><p>Additionally, cloud providers offer:</p><ul><li>Spot instances/Preemptible VMs: Temporary, lower-cost compute instances suitable for non-critical training tasks.</li><li>Reserved instances: For long-running workloads, you can reserve capacity at a discounted rate.</li><li>Auto-scaling policies: Adjust resources automatically based on workload intensity.</li></ul><p>This model allows ML teams, especially startups and research groups, to operate efficiently without large capital expenditures.</p><h3 id="managed-ecosystem-and-integration">Managed ecosystem and integration</h3><p>Building a complete ML system involves far more than just running models. You need data pipelines, storage, monitoring, orchestration, and security.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-103.png" class="kg-image" alt="" loading="lazy" width="1000" height="630" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-103.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-103.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>The cloud offers a managed ecosystem that significantly reduces engineering overhead.</p><p>Cloud providers deliver integrated, managed services for nearly every layer of an ML workflow:</p><ul><li>Data storage: Object storage, databases and data warehouses.</li><li>Compute orchestration: Managed Kubernetes (EKS, AKS, GKE), serverless compute (Lambda, Cloud Functions).</li><li>Model lifecycle tools: Managed ML platforms (SageMaker, Vertex AI, Azure ML) that handle training, tuning, and deployment.</li><li>Monitoring and logging: Cloud-native observability tools (CloudWatch, Stackdriver, Azure Monitor).</li></ul><p>Because these services are fully managed, ML engineers spend less time on infrastructure management and more time on model design, experimentation, and deployment.</p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">Note that, while we’ll explore one or two of these services in upcoming chapters, covering each of them in detail is beyond the scope of this series. However, simply being aware of their existence helps us understand what’s possible and what can realistically be achieved.</div></div><h3 id="high-availability-and-redundancy">High availability and redundancy</h3><p>Cloud infrastructure is built for resilience. Providers operate data centers across multiple regions and availability zones, each with redundant networking, power, and cooling systems.</p><p>Plus, cloud makes it easier to deploy across multiple regions/zones, replicate data, and implement strategies for disaster recovery and resilience.</p><p>This design leads to high availability (HA). Your ML services (such as real-time inference APIs) remain accessible with minimal interruption, even under adverse conditions.</p><p>Together, these characteristics allow ML teams to innovate rapidly, deploy globally, and focus their energy on building better models rather than managing infrastructure.</p><p>Next, let's take a look at the common patterns of dependency of ML workloads in the cloud.</p><hr><h2 id="patterns-for-ml-workloads-in-cloud">Patterns for ML workloads in Cloud</h2><p>Building ML systems in the cloud is largely about matching workload patterns to the right infrastructure strategies.</p><p>Across the industry, a few recurring blueprints consistently emerge for training, inference, data pipelines, scaling, and monitoring.</p><p>Let's discuss them below!</p><h3 id="training-vs-inference-vs-batch">Training vs Inference vs Batch</h3><p>Every ML workload has a distinct personality.</p><p>Training jobs are compute-hungry, often distributed across many GPUs or TPUs, with heavy I/O demands for large datasets. They run for hours or days and typically benefit from high-throughput, low-latency storage.</p><p>Real-time inference, in contrast, is all about responsiveness. These workloads prioritize low latency, high concurrency, and predictable tail performance. Autoscaling and model versioning become critical, since production traffic can fluctuate dramatically.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-100.png" class="kg-image" alt="" loading="lazy" width="1184" height="866" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-100.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-100.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-100.png 1184w" sizes="(min-width: 720px) 720px"></figure><p>Then there’s batch inference, where speed per request doesn’t matter, but throughput does. Batch systems score millions of data points on a schedule (or when triggered by events) and often run on ephemeral clusters or spot instances that shut down after completion to save cost.</p><p>Each of these workload types demands a different orchestration and scaling strategy.</p><h3 id="data-pipelines-storage">Data pipelines &amp; storage</h3><p>No ML system survives without robust data plumbing. The data pipeline, which comprises ingestion, transformation, and storage, powers both training and inference.</p><p>Most pipelines follow a similar pattern: raw data is first ingested into a staging area such as S3 or Blob Storage.</p><p>From there, it undergoes validation, deduplication, and quality checks before being transformed into clean, structured feature sets.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-99.png" class="kg-image" alt="" loading="lazy" width="1000" height="299" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-99.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-99.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>The golden rule here is simple: always keep raw, immutable copies, and produce versioned transformations for reproducibility.</p><p>For storage, the pattern depends on access characteristics:</p><ul><li>Raw and processed data lives best in object storage (e.g., S3, Azure Blob, GCS) for durability and cost efficiency.</li><li>High-throughput training datasets benefit from block storage or parallel file systems, which deliver the IOPS needed for fast batch reads.</li><li>Feature stores serve low-latency lookups in production via specialized key-value systems.</li><li>A metadata store ties it all together, which helps in tracking dataset versions, preprocessing steps, and lineage for auditability and reproducibility.</li></ul><h3 id="model-registry-versioning">Model Registry &amp; versioning</h3><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-97.png" class="kg-image" alt="" loading="lazy" width="354" height="280"></figure><p>A model registry is where all trained models, their metadata, evaluation metrics, and lineage converge.</p><p>Tools like MLflow, Kubeflow Model Registry, or custom setups (using S3 and databases) serve as the single source of truth for your model artifacts.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-96.png" class="kg-image" alt="" loading="lazy" width="388" height="162"></figure><p>They track everything: weights, hyperparameters, environment details, and the dataset versions used for training.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-98.png" class="kg-image" alt="" loading="lazy" width="545" height="422"></figure><p>A well-designed registry supports the full lifecycle, which includes registering, staging, promoting to production, and rolling back when needed.</p><p>Operational excellence here means recording every variable that influences behavior: the training code, library versions, serialized formats, and even input/output schemas. That’s what makes debugging or reproducing a model months later actually possible.</p><h3 id="inference-serving-patterns">Inference serving patterns</h3><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-94.png" class="kg-image" alt="" loading="lazy" width="1000" height="395" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-94.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-94.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>Inference is where ML meets the real world and and there’s no one-size-fits-all solution. The most common serving architectures include:</p><ul><li>Serverless inference which is ideal for small models or unpredictable workloads. It autoscales automatically and requires almost no ops effort. The trade-off: cold starts, limited memory, and slower response times for large models.</li><li>Container-based microservices which is the go-to for production-grade deployments. They provide full control over runtime, support large models, and allow warm-up logic or preprocessing hooks. The downside is operational complexity, typically managed via Kubernetes and model servers like TorchServe or Triton.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-95.png" class="kg-image" alt="" loading="lazy" width="1000" height="495" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-95.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-95.png 1000w" sizes="(min-width: 720px) 720px"></figure><ul><li>Edge inference and model optimization, which is built for ultra-low-latency use cases. Models are quantized, pruned, or converted to ONNX, then deployed to edge devices or gateways to minimize round-trip to the cloud.</li><li>Finally, we have batch scoring, which is best suited for periodic analytics or re-scoring historical data, often running on distributed compute frameworks like Spark or Ray.</li></ul><p>Choosing among these patterns is always a function of latency tolerance, throughput, model size, and operational constraints.</p><h3 id="autoscaling">Autoscaling</h3><p>Scalability in ML isn’t just about adding more instances but rather about adding them intelligently.</p><p>Techniques like Horizontal Pod Autoscaling (HPA) adjust replica counts based on CPU, memory, or custom metrics such as latency or queries per second.</p><p>GPU autoscaling combines cluster autoscalers with GPU-aware schedulers to allocate hardware efficiently, especially for inference workloads.</p><p>For predictable traffic surges (say, during business hours), teams often maintain warm pools or use predictive scaling to preemptively spin up replicas, which helps avoid latency spikes before they happen.</p><h3 id="deployment-strategies">Deployment strategies</h3><p>These are some common cloud-native strategies:</p><ul><li>Blue-Green: Deploy new version to parallel environment; switch traffic after validation. Good for zero-downtime.</li><li>Canary Deployments: Route a small percentage of traffic to the new model; monitor metrics before wider rollout.</li><li>A/B Testing: Experiment with different models for feature/metric comparison.</li><li>Shadow Deployment: New model receives production traffic, but responses are for internal evaluation only. Useful for offline validation without risk.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-102.png" class="kg-image" alt="" loading="lazy" width="2000" height="492" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-102.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-102.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-102.png 1600w, https://www.dailydoseofds.com/content/images/size/w2400/2025/10/image-102.png 2400w" sizes="(min-width: 720px) 720px"></figure><ul><li>Rollback: Always enable quick rollback to the previous model version.</li></ul><h3 id="monitoring-and-detection">Monitoring and Detection</h3><p>No deployment is complete without visibility. Monitoring ML systems means tracking both infrastructure performance and model behavior.</p><p>Metrics to monitor include:</p><ul><li>Model quality: Accuracy, AUC, precision/recall, task-specific metrics.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-82.png" class="kg-image" alt="" loading="lazy" width="1000" height="367" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-82.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-82.png 1000w" sizes="(min-width: 720px) 720px"></figure><ul><li>Data &amp; prediction drift: Input feature distributions, population shifts, prediction distribution changes.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-83.png" class="kg-image" alt="" loading="lazy" width="989" height="490" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-83.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-83.png 989w" sizes="(min-width: 720px) 720px"></figure><ul><li>Resource &amp; performance: Latency percentiles, throughput, GPU/CPU/memory, disk usage and error rates.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-84-2.png" class="kg-image" alt="" loading="lazy" width="1000" height="572" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-84-2.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-84-2.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>Detection techniques vary. For instance:</p><ul><li>Statistical drift detectors like the KS-test and KL divergence to spot drift.</li></ul><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">The KS test, or Kolmogorov-Smirnov test, is&nbsp;a nonparametric statistical test used to determine if two samples come from the same continuous probability distribution or if a single sample comes from a specific reference distribution</div></div><ul><li>Shadow evaluation: Teams run the new model in shadow and compare outputs to the production model.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-85.png" class="kg-image" alt="" loading="lazy" width="1000" height="330" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-85.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-85.png 1000w" sizes="(min-width: 720px) 720px"></figure><ul><li>Alerting: We define thresholds/objectives for latency and model accuracy; create alerts for drift or broken pipelines.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-81.png" class="kg-image" alt="" loading="lazy" width="1000" height="359" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-81.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-81.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>Note that, for now, we are just touching upon the topic of monitoring and observability; we'll explore it in greater depth in a later chapter.</p><h3 id="reproducibility-auditability">Reproducibility &amp; auditability</h3><p>Modern ML teams operate under increasing pressure for traceability and compliance.</p><p>For traceability:</p><ul><li>Record and link training dataset versions, preprocessing code, hyperparameters, random seeds and evaluation metrics.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-87.png" class="kg-image" alt="" loading="lazy" width="545" height="422"></figure><ul><li>Use experiment tracking (MLflow, Weights &amp; Biases).</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-86.png" class="kg-image" alt="" loading="lazy" width="1000" height="285" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-86.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-86.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>For reproducibility:</p><ul><li>Capture runtime environments (Docker images, conda/pip lockfiles).</li><li>Snapshot datasets or store dataset hashes. Store preprocessing pipelines or use deterministic feature transforms.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-89.png" class="kg-image" alt="" loading="lazy" width="893" height="211" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-89.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-89.png 893w" sizes="(min-width: 720px) 720px"></figure><p>For auditability &amp; compliance:</p><ul><li>Capture access logs and model actions for audits (who deployed, when, with which artifacts).</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-88.png" class="kg-image" alt="" loading="lazy" width="571" height="226"></figure><ul><li>Ensure sensitive data handling complies with regulations (masking, encryption at rest/in transit, access controls).</li><li>Retain logs and model metadata according to policy.</li></ul><p>Lastly, for access control:</p><ul><li>Enforce least privilege on model registries, data stores, and deployment pipelines.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-13_files/image-90.png" class="kg-image" alt="" loading="lazy" width="2000" height="668" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-90.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-90.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-90.png 1600w, https://www.dailydoseofds.com/content/images/size/w2400/2025/10/image-90.png 2400w" sizes="(min-width: 720px) 720px"></figure><ul><li>Use role-based access and approval workflows for production promotion.</li></ul><p>With this, we complete the key aspects of ML patterns in cloud environments. Designing ML architectures in the cloud is about mapping workload characteristics to the right pattern(s).</p><p>Industry combines these patterns with strong governance, monitoring, and automation to create reliable, reproducible, and cost-efficient ML systems.</p><p>With this, we complete our discussion for this chapter. We did not include any hands-on tutorials here, as it was important to first establish a solid understanding of the fundamentals of cloud computing.</p><p>In the upcoming chapters, we will include hands-on walkthroughs, wherever appropriate, and learn some more advanced concepts related to the deployment and monitoring phase.</p><hr><h2 id="conclusion">Conclusion</h2><p>In this chapter, we continued our exploration of model deployment in MLOps by focusing on the fundamentals of cloud computing.</p><p>We began by revisiting the foundational concepts necessary to understand cloud systems, such as IP addressing and the transmission of data as packets.</p><p>We then examined the definition of cloud computing and the five essential characteristics outlined by NIST.</p><p>Next, we explored the various models associated with cloud computing, including deployment, service, cost, and responsibility models. This was followed by a detailed discussion on the core infrastructure components that make up a cloud environment.</p><p>We also covered important operational aspects, including networking and Identity and Access Management (IAM).</p><p>Finally, we studied how machine learning workloads function within the cloud and observed different architectural and usage patterns used for ML systems in cloud environments.</p><p>Key takeaways:</p><ul><li>Cloud computing forms the foundation for scalable and efficient ML deployment through flexible deployment, service, and responsibility models.</li><li>A clear understanding of cloud infrastructure, networking, and IAM is crucial for building secure and well-managed ML pipelines.</li><li>Load balancing and scalability concepts are the key players in maintaining performance and reliability by distributing workload evenly across multiple servers.</li></ul><p>In the next part, we’ll delve into a few more advanced concepts related to the deployment phase itself.</p><p>After the deployment phase, we’ll continue our journey further with:</p><ul><li>CI/CD workflows</li><li>Real-world case studies from industry</li><li>Special considerations for LLMOps</li></ul><p>The aim, as always, is to help you cultivate a mature, system-centric mindset, one that treats machine learning not as a standalone artifact but as a living part of a broader software ecosystem.</p><p>As always, thanks for reading!</p><p>Any questions?</p><p>Feel free to post them in the comments.</p><p>Or</p><p>If you wish to connect privately, feel free to initiate a chat here:</p><figure class="kg-card kg-image-card kg-card-hascaption"><img src="./mlops-crash-course-part-13_files/image-44.png" class="kg-image" alt="" loading="lazy" width="976" height="225" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-44.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-44.png 976w" sizes="(min-width: 720px) 720px"><figcaption><span style="white-space: pre-wrap;">Connect via chat</span></figcaption></figure>
+    </article>
+
+            <div class="post-tags content-width mb-lg">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+        <a class="post-tag tag-mlops" href="https://www.dailydoseofds.com/tag/mlops/" aria-label="MLOps">MLOps</a>
+        <a class="post-tag tag-deployment" href="https://www.dailydoseofds.com/tag/deployment/" aria-label="Deployment">Deployment</a>
+    </div>
+
+        <hr class="content-width mb-lg">
+
+        <div class="social-share content-width ">
+  <span class="social-share-title">Share this article</span>
+  <a class="social-share__item twitter js-share" target="_blank" href="https://twitter.com/share?text=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20C&amp;url=https://www.dailydoseofds.com/mlops-crash-course-part-13/" title="Share on Twitter" aria-label="Share on Twitter">
+    <i class="icon icon-twitter icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z"></path>
+</svg>
+
+
+
+</i>    <span>Tweet</span>
+  </a>
+  <a class="social-share__item facebook js-share" target="_blank" href="https://www.facebook.com/sharer.php?u=https://www.dailydoseofds.com/mlops-crash-course-part-13/" title="Share on Facebook" aria-label="Share on Facebook">
+    <i class="icon icon-facebook icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-facebook" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"></path>
+</svg>
+
+
+
+</i>    <span>Share</span>
+  </a>
+  <a class="social-share__item linkedin js-share" target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.dailydoseofds.com/mlops-crash-course-part-13/&amp;title=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20C&amp;summary=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20C" title="Share on Linkedin" aria-label="Share on Linkedin">
+    <i class="icon icon-linkedin icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin">
+  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+  <rect x="2" y="9" width="4" height="12"></rect>
+  <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</i>    <span>Share</span>
+  </a>
+  <a class="social-share__item mail" href="mailto:?subject=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20C&amp;body=https://www.dailydoseofds.com/mlops-crash-course-part-13/%C2%A0The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20C" title="Share by email" aria-label="Share by email">
+    <i class="icon icon-mail icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-mail" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+  <polyline points="3 7 12 13 21 7"></polyline>
+</svg>
+</i>    <span>Email</span>
+  </a>
+  <button class="copy-link copy js-copy-link" data-url="https://www.dailydoseofds.com/mlops-crash-course-part-13/" title="Copy to clipboard" data-label="Copied!" aria-label="Copy to clipboard">
+    <i class="icon icon-link icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+   <path d="M9 15l6 -6"></path>
+   <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path>
+   <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path>
+</svg>
+</i>    <span>Copy</span>
+  </button>
+</div>
+
+  </div>
+
+    
+      <div class="bg-acc mb-xl comment-section">
+        <div class="container wrapper">
+          <div class="post-comments radius-double p-lg pb-0 flex-1 self-align-start" id="comments">
+            <div class="content-width">
+              
+        <div id="ghost-comments-root"><iframe innerref="[object Object]" frameborder="0" title="comments-frame" style="width: 100%; height: 152px;" src="./mlops-crash-course-part-13_files/saved_resource.html"></iframe></div><script defer="" src="./mlops-crash-course-part-13_files/comments-ui.min.js" data-locale="en" data-ghost-comments="https://www.dailydoseofds.com/" data-api="https://daily-dose-of-data-science.ghost.io/ghost/api/content/" data-admin="https://daily-dose-of-data-science.ghost.io/ghost/" data-key="933dba8c65eaaa9a2f6c0be670" data-title="Comments" data-count="true" data-post-id="68ef8d3b87db1600016d3e70" data-color-scheme="auto" data-avatar-saturation="60" data-accent-color="#54b6f2" data-comments-enabled="all" data-publication="Daily Dose of Data Science" crossorigin="anonymous"></script>
+    
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <section class="read-next pt-xl pb-lg">
+      <div class="container wrapper">
+        <h2 class="section-title">Read next</h2>
+        <div class="post-feed mb-lg" data-feed="list">
+
+              <article class="post-card has-img js-post-card" data-date="Oct 12, 2025" data-aspect-ratio="auto">
+  
+<a class="post-card__media" href="https://www.dailydoseofds.com/mlops-crash-course-part-12/">      <figure>
+        <picture class="">
+  <source sizes="280px" data-sizes="auto" srcset="/content/images/size/w30/2025/10/Sanyog-MLOps_-_I.png 30w" data-srcset="/content/images/size/w300/format/webp/2025/10/Sanyog-MLOps_-_I.png 300w, /content/images/size/w600/format/webp/2025/10/Sanyog-MLOps_-_I.png 600w, /content/images/size/w1000/format/webp/2025/10/Sanyog-MLOps_-_I.png 1000w" type="image/webp">
+  <img class="lazyload" sizes="280px" data-sizes="auto" data-srcset="/content/images/size/w300/2025/10/Sanyog-MLOps_-_I.png 300w, /content/images/size/w600/2025/10/Sanyog-MLOps_-_I.png 600w, /content/images/size/w1000/2025/10/Sanyog-MLOps_-_I.png 1000w" srcset="/content/images/size/w30/2025/10/Sanyog-MLOps_-_I.png 30w" data-src="/content/images/size/w100/2025/10/Sanyog-MLOps_-_I.png" src="./mlops-crash-course-part-13_files/Sanyog-MLOps_-_I.png" alt="The Full MLOps Blueprint: Model Deployment—Part B">
+</picture>      </figure>
+</a>
+  <div class="post-card__content flex flex-col ">
+    <div class="post-card__info">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+
+      <time class="post-card__date" datetime="2025-10-12">Oct 12, 2025</time> 
+
+        <span class="m-l-sm m-r-sm">•</span>
+        <span class="post-card__date">22 min read</span>
+
+      
+      <span class="flex-1"></span>
+
+        <span class="post-card__visibility has-access" data-tooltip="paid" tabindex="0">
+          <i class="icon icon-lock-open icon--14">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock-open" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+  <circle cx="12" cy="16" r="1"></circle>
+  <path d="M8 11v-5a4 4 0 0 1 8 0"></path>
+</svg>
+
+
+
+</i>
+        </span>
+
+    </div>
+
+      <h2 class="post-card__title"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/">The Full MLOps Blueprint: Model Deployment—Part B</a></h2>
+
+    <p class="post-card__excerpt">MLOps and LLMOps Crash Course—Part 12.</p>
+
+    <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-13_files/avi-google(1).jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-13_files/38653995(1).png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</article>            
+
+              <article class="post-card has-img js-post-card" data-date="Oct 5, 2025" data-aspect-ratio="auto">
+  
+<a class="post-card__media" href="https://www.dailydoseofds.com/mlops-crash-course-part-11/">      <figure>
+        <picture class="">
+  <source sizes="280px" data-sizes="auto" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-3.png 30w" data-srcset="/content/images/size/w300/format/webp/2025/09/Sanyog-MLOps_-_I-3.png 300w, /content/images/size/w600/format/webp/2025/09/Sanyog-MLOps_-_I-3.png 600w, /content/images/size/w1000/format/webp/2025/09/Sanyog-MLOps_-_I-3.png 1000w" type="image/webp">
+  <img class="lazyload" sizes="280px" data-sizes="auto" data-srcset="/content/images/size/w300/2025/09/Sanyog-MLOps_-_I-3.png 300w, /content/images/size/w600/2025/09/Sanyog-MLOps_-_I-3.png 600w, /content/images/size/w1000/2025/09/Sanyog-MLOps_-_I-3.png 1000w" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-3.png 30w" data-src="/content/images/size/w100/2025/09/Sanyog-MLOps_-_I-3.png" src="./mlops-crash-course-part-13_files/Sanyog-MLOps_-_I-3.png" alt="The Full MLOps Blueprint: Model Deployment—Part A">
+</picture>      </figure>
+</a>
+  <div class="post-card__content flex flex-col ">
+    <div class="post-card__info">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+
+      <time class="post-card__date" datetime="2025-10-05">Oct 5, 2025</time> 
+
+        <span class="m-l-sm m-r-sm">•</span>
+        <span class="post-card__date">21 min read</span>
+
+      
+      <span class="flex-1"></span>
+
+        <span class="post-card__visibility has-access" data-tooltip="paid" tabindex="0">
+          <i class="icon icon-lock-open icon--14">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock-open" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+  <circle cx="12" cy="16" r="1"></circle>
+  <path d="M8 11v-5a4 4 0 0 1 8 0"></path>
+</svg>
+
+
+
+</i>
+        </span>
+
+    </div>
+
+      <h2 class="post-card__title"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-11/">The Full MLOps Blueprint: Model Deployment—Part A</a></h2>
+
+    <p class="post-card__excerpt">MLOps and LLMOps Crash Course—Part 11.</p>
+
+    <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-13_files/avi-google(1).jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-13_files/38653995(1).png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</article>            
+
+              <article class="post-card has-img js-post-card" data-date="Sep 28, 2025" data-aspect-ratio="auto">
+  
+<a class="post-card__media" href="https://www.dailydoseofds.com/mlops-crash-course-part-10/">      <figure>
+        <picture class="">
+  <source sizes="280px" data-sizes="auto" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-2.png 30w" data-srcset="/content/images/size/w300/format/webp/2025/09/Sanyog-MLOps_-_I-2.png 300w, /content/images/size/w600/format/webp/2025/09/Sanyog-MLOps_-_I-2.png 600w, /content/images/size/w1000/format/webp/2025/09/Sanyog-MLOps_-_I-2.png 1000w" type="image/webp">
+  <img class="lazyload" sizes="280px" data-sizes="auto" data-srcset="/content/images/size/w300/2025/09/Sanyog-MLOps_-_I-2.png 300w, /content/images/size/w600/2025/09/Sanyog-MLOps_-_I-2.png 600w, /content/images/size/w1000/2025/09/Sanyog-MLOps_-_I-2.png 1000w" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-2.png 30w" data-src="/content/images/size/w100/2025/09/Sanyog-MLOps_-_I-2.png" src="./mlops-crash-course-part-13_files/Sanyog-MLOps_-_I-2.png" alt="The Full MLOps Blueprint: Model Development and Optimization—Part C">
+</picture>      </figure>
+</a>
+  <div class="post-card__content flex flex-col ">
+    <div class="post-card__info">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+
+      <time class="post-card__date" datetime="2025-09-28">Sep 28, 2025</time> 
+
+        <span class="m-l-sm m-r-sm">•</span>
+        <span class="post-card__date">22 min read</span>
+
+      
+      <span class="flex-1"></span>
+
+        <span class="post-card__visibility has-access" data-tooltip="paid" tabindex="0">
+          <i class="icon icon-lock-open icon--14">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock-open" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+  <circle cx="12" cy="16" r="1"></circle>
+  <path d="M8 11v-5a4 4 0 0 1 8 0"></path>
+</svg>
+
+
+
+</i>
+        </span>
+
+    </div>
+
+      <h2 class="post-card__title"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-10/">The Full MLOps Blueprint: Model Development and Optimization—Part C</a></h2>
+
+    <p class="post-card__excerpt">MLOps and LLMOps Crash Course—Part 10.</p>
+
+    <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-13_files/avi-google(1).jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-13_files/38653995(1).png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</article>            
+      </div>
+        
+      </div>
+    </section>
+
+
+
+
+
+<!--
+  <div class="related-posts mb-lg">
+        </div>
+
+-->
+    </main>
+
+      
+    <footer class="footer">
+  <div class="container wrapper">
+    <span class="footer-top"></span>
+    <div class="row">
+      <div class="col-xs-12 col-md-5">
+        <div class="footer__brand flex items-center">
+            <picture class="default-logo">
+  <source sizes="200px" data-sizes="auto" srcset="/content/images/size/w30/2023/06/logo-subsatck2.svg 30w" data-srcset="/content/images/size/w300/format/webp/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/format/webp/2023/06/logo-subsatck2.svg 600w" type="image/webp">
+  <img class="footer__logo mr lazyload" sizes="200px" data-sizes="auto" data-srcset="/content/images/size/w300/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/2023/06/logo-subsatck2.svg 600w" srcset="/content/images/size/w30/2023/06/logo-subsatck2.svg 30w" data-src="/content/images/size/w100/2023/06/logo-subsatck2.svg" src="./mlops-crash-course-part-13_files/logo-subsatck2.svg" alt="Daily Dose of Data Science">
+</picture>        </div>
+
+        <div class="footer__description" id="footer-input-label">
+          A daily column with insights, observations, tutorials and best practices on python and data science. Read by industry professionals at big tech, startups, and engineering students, across:
+        </div>
+
+        <div class="social-links">
+          
+  <a href="https://x.com/_avichawla" class="twitter" aria-label="Twitter"><i class="icon icon-twitter icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z"></path>
+</svg>
+
+
+
+</i><span>Twitter</span></a>
+
+<a href="https://www.linkedin.com/in/avi-chawla/" class="Linkedin" aria-label="LinkedIn"><i class="icon icon-linkedin icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin">
+  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+  <rect x="2" y="9" width="4" height="12"></rect>
+  <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</i><span>LinkedIn</span></a>
+
+<a href="https://github.com/ChawlaAvi/Daily-Dose-of-Data-Science" class="github" aria-label="Github"><i class="icon icon-github icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <desc>Download more icon variants from https://tabler-icons.io/i/brand-github</desc>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
+</svg>
+
+
+
+</i><span>Github</span></a>
+
+<a href="https://www.dailydoseofds.com/rss" class="rss" aria-label="RSS"><i class="icon icon-rss icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <circle cx="5" cy="19" r="1"></circle>
+  <path d="M4 4a16 16 0 0 1 16 16"></path>
+  <path d="M4 11a9 9 0 0 1 9 9"></path>
+</svg>
+
+
+
+</i><span>RSS</span></a>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+
+      <div class="col-xs-12 col-md-7">
+        <span class="fw-700 mb-sm display-block text-12">Navigation</span>
+        <ul class="nav" data-items="8">
+
+
+
+
+        <li class="nav-newsletter" data-label="Newsletter" data-length="10" data-post="">
+          <a href="https://join.dailydoseofds.com/">
+            <span>Newsletter</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-more is-toggle" data-label="More" data-length="4" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#">
+            <span>More</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-contact is-subitem" data-label="- Contact" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/contact/">
+            <span> Contact</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-faqs is-subitem" data-label="- FAQs" data-length="6" data-post="">
+          <a href="https://www.dailydoseofds.com/faq/">
+            <span> FAQs</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-about is-subitem" data-label="- About" data-length="7" data-post="">
+          <a href="https://www.dailydoseofds.com/about/">
+            <span> About</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-search" data-label="Search 🔎" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/#/search/">
+            <span>Search 🔎</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+        
+          
+
+
+
+
+</ul>
+
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <div class="footer__copy">
+        <span>©2025&nbsp;<a href="https://www.dailydoseofds.com/">Daily Dose of Data Science</a>.</span>
+        <span>All rights reserved.</span>
+      </div>
+
+      </div>
+
+  </div>
+</footer>
+
+    <dialog class="notification">
+  <i class="icon icon-success notification-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <circle cx="12" cy="12" r="9"></circle>
+  <path d="M9 12l2 2l4 -4"></path>
+</svg>
+
+
+
+</i>  <i class="icon icon-error notification-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-octagon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M8.7 3h6.6c.3 0 .5 .1 .7 .3l4.7 4.7c.2 .2 .3 .4 .3 .7v6.6c0 .3 -.1 .5 -.3 .7l-4.7 4.7c-.2 .2 -.4 .3 -.7 .3h-6.6c-.3 0 -.5 -.1 -.7 -.3l-4.7 -4.7c-.2 -.2 -.3 -.4 -.3 -.7v-6.6c0 -.3 .1 -.5 .3 -.7l4.7 -4.7c.2 -.2 .4 -.3 .7 -.3z"></path>
+  <line x1="12" y1="8" x2="12" y2="12"></line>
+  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+</svg>
+
+
+
+</i>  <i class="icon icon-warning notification-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M12 9v2m0 4v.01"></path>
+  <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
+</svg>
+
+
+
+</i>  <p class="notification-msg signup-success">Great! You’ve successfully signed up. Please check your email.</p> 
+  <p class="notification-msg signin-success">Welcome back! You've successfully signed in.</p> 
+  <p class="notification-msg subscribe-success">You've successfully subscribed to Daily Dose of Data Science.</p> 
+  <p class="notification-msg link-expired">Your link has expired.</p> 
+  <p class="notification-msg checkout-success">Success! Check your email for magic link to sign-in.</p> 
+  <p class="notification-msg billing-success">Success! Your billing info has been updated.</p> 
+  <p class="notification-msg billing-cancel">Your billing was not updated.</p> 
+  <button class="notification-close js-notification-close" aria-label="Close" onclick="closeNotification(event.currentTarget.parentNode);">
+    <i class="icon icon-x">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <line x1="18" y1="6" x2="6" y2="18"></line>
+  <line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+</i>  </button>
+</dialog>
+
+      
+    
+
+      <script>
+    document.addEventListener('readystatechange', function(event) {
+      if (document.readyState === "complete") {
+        // table of contents toggle
+        const postToc = document.querySelector('.js-post-toc');
+
+        // media query for TOC function
+        //const mqSmall = window.matchMedia('(max-width: 1200px)');
+        //const mqLarge = window.matchMedia('(min-width: 1280px)');
+
+        if (postToc && !isInViewport('.header') && !isInViewport('.read-next')) 
+          postToc.classList.add('is-active');
+
+        window.addEventListener('scroll', (event) => {
+          if ( isInViewport('.header') || isInViewport('.read-next') || isInViewport('.footer')) {
+            postToc.classList.remove('is-active');
+          } else {
+            postToc.classList.add('is-active');
+          }
+        });
+
+        const headerStyle = document.querySelector('.js-header').getAttribute('data-style');
+        let headerOffset = headerStyle === 'sticky' ? 80 : 20;
+
+        if (postToc) {
+          tocbot.init({
+            // Where to render the table of contents.
+            tocSelector: '.js-toc',
+            // Where to grab the headings to build the table of contents.
+            contentSelector: '.content',
+            // Which headings to grab inside of the contentSelector element.
+            headingSelector: 'h2,h3,h4,h5,h6',
+            // Ignore some headings (like header card and toggle card)
+            ignoreSelector: '[class*="kg-"],[class*="content-cta"],[class*="post-bottom"]',
+            // For headings inside relative or absolute positioned containers within content.
+            hasInnerContainers: false,
+            // smooth scroll
+            scrollSmooth: false,
+            // offset
+            headingsOffset: headerOffset,
+          });
+
+          document.querySelector('.js-toc .toc-list') ? postToc.classList.add('is-rendered') : null;
+        }
+      }
+    });
+
+        // Add this to your site's JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+      const toc = document.querySelector('.post-toc');
+      if (toc) {
+        // Add is-visible class by default on desktop
+        if (window.innerWidth >= 1024) {
+          toc.classList.add('is-visible');
+        }
+      }
+    });
+  </script>
+
+  <script>
+    // Copy button
+    const copyBtn = document.querySelector('.js-copy-link');
+    if (copyBtn) {
+      copyBtn.onclick = function(event) {
+        copyToClipboard(event.currentTarget, event.currentTarget.getAttribute('data-url'));
+      }
+    }
+    
+    /** 
+    * Copy to clipboard
+    * @src - source element
+    * @str - string to copy
+    */ 
+    const copyToClipboard = function(src, str) {
+      const el = document.createElement('textarea');
+      el.value = str;
+      el.setAttribute('readonly', '');
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      src.classList.add('has-tooltip');
+      src.setAttribute('data-label', 'Copied!');
+
+      src.onmouseleave = function() { 
+        src.classList.remove('has-tooltip');
+        setTimeout(function(){
+          src.setAttribute('data-label', '');
+        }, 500); 
+      }
+    };
+  </script>
+
+<script>
+  const navItems = document.querySelectorAll('.header .nav:not(.submenu) li')
+  const allNavItems = document.querySelectorAll('.is-subitem')
+
+  // Remove '-' signs
+  allNavItems.forEach(item => {
+    const itemName = item.querySelector('a span')
+    itemName.innerText = itemName.innerText.slice(1)
+  });
+
+  // Add subitems in place
+  let subMenu, hasItems
+  navItems.forEach((item, index) => {
+    if (item.classList.contains('is-subitem') && !navItems[index - 1].classList.contains('is-subitem')) navItems[index - 1].classList.add('is-mainitem'); 
+    subMenu = item.classList.contains('is-subitem') ? subMenu : document.createElement('ul');
+    if (item.classList.contains('is-subitem')) { 
+      subMenu.appendChild(item)
+      subMenu.classList.add('nav','submenu')
+    } else { 
+      item.appendChild(subMenu)
+    }
+  });
+</script>
+
+  <script>
+    // Give the parameter a variable name
+    const qsParams = new URLSearchParams(window.location.search);
+    const isAction = qsParams.has('action');
+    const isStripe = qsParams.has('stripe');
+    const success = qsParams.get('success');
+    const action = qsParams.get('action');
+    const stripe = qsParams.get('stripe');
+
+    if (qsParams && isAction) {
+      if (success === "true") {
+        switch (action) {
+          case 'subscribe':
+            openNotification('subscribe-success');
+            break;
+          case 'signup': 
+            openNotification('signup-success');
+            break;
+          case 'signin':
+            openNotification('signin-success');
+            break;
+          default:
+            break;
+        }
+      } else {
+        openNotification('link-expired');
+      }
+    }
+
+    if (qsParams && isStripe) {
+      switch (stripe) {
+        case 'success':
+          openNotification('checkout-success');
+          break;
+        case 'billing-update-success':
+          openNotification('billing-success');
+          break;
+        case 'billing-update-cancel':
+          openNotification('billing-cancel');
+          break;
+        default:
+          break;
+      }
+    }
+
+    /**
+    * Handle Notifications
+    */
+    function openNotification(type) {
+      const notification = document.querySelector('dialog.notification');
+      if (notification) { 
+        notification.setAttribute('data-msg-type', type);
+        notification.show();
+        setTimeout(function(){ closeNotification(notification); }, 7000);
+      }
+    }
+    
+    /**
+    * Clean URI
+    */
+    function clearURI() {
+      window.history.replaceState({}, '', `${window.location.pathname}`);
+    }
+
+    function closeNotification(notification) {
+      notification.close();
+      clearURI();
+      setTimeout(function(){ notification.removeAttribute('data-msg-type') }, 500);
+    }
+  </script>
+
+
+    <script>
+  // Check if the current URL contains "membership-"
+if (window.location.href.includes("membership-n1")) {
+  // Use the pushState method to change the URL without triggering a page reload
+  window.history.pushState({}, "", "https://www.dailydoseofds.com/membership");
+}
+  
+</script>
+
+
+
+      
+
+
+
+  
+
+<div id="ghost-portal-root" data-testid="portal-root"></div><div id="sodo-search-root"></div><div class="overlay"></div><div class="crisp-client" aria-live="polite" translate="no" tabindex="-1" lang="en" dir="ltr" style="--crisp-color-theme-10: 240, 242, 245; --crisp-color-theme-20: 242, 247, 248; --crisp-color-theme-100: 220, 237, 246; --crisp-color-theme-200: 102, 120, 138; --crisp-color-theme-500: 68, 121, 145; --crisp-color-theme-600: 60, 113, 137; --crisp-color-theme-700: 50, 101, 124; --crisp-color-theme-800: 42, 90, 112; --crisp-color-theme-900: 39, 85, 106; --crisp-color-theme-reverse: 255, 255, 255;"><div class="cc-1lkve"></div><div class="cc-yv368" id="crisp-chatbox" data-hidden="false" data-force-show="false" data-color-mode="light" data-availability="online" data-lock-maximized="false" data-website-logo="false" data-last-operator-face="false" data-ongoing-operator-face="false" data-availability-tooltip="false" data-hide-vacation="false" data-blocked="false" data-mobile-view="false" data-full-view="false" data-small-view="false" data-large-view="true" data-has-local-messages="false" data-was-availability-online="true" data-is-activity-ongoing="false" data-hide-on-away="false" data-hide-on-mobile="false" data-position-reverse="true"><div class="cc-1kr6o cc-cxjxh cc-jx6a3"><div class="cc-18ov6" data-maximized="false" data-is-failure="false" role="button" tabindex="0" aria-label="Open chat" data-pane-animate-entrance="false" data-pop="minimized:open"><span class="cc-1442g"><!--v-if--></span><span class="cc-1qbp0 cc-1o31k"><span class="cc-otlyh" data-id="chat_closed" data-is-ongoing="false"><span class="cc-11f3x cc-16kzz" data-partial-pending="false"><!--v-if--></span></span></span></div></div></div><div class="cc-yv368 cc-vx6i0"></div><div class="cc-yv368 cc-1tx1r"></div><div class="cc-yv368 cc-jcxto" data-color-mode="light"></div></div><iframe name="__privateStripeMetricsController9850" frameborder="0" allowtransparency="true" scrolling="no" role="presentation" allow="payment *" src="./mlops-crash-course-part-13_files/m-outer-3437aaddcdf6922d623e172c2d6f9278.html" aria-hidden="true" tabindex="-1" style="border: none !important; margin: 0px !important; padding: 0px !important; width: 1px !important; min-width: 100% !important; overflow: hidden !important; display: block !important; visibility: hidden !important; position: fixed !important; height: 1px !important; pointer-events: none !important; user-select: none !important;"></iframe></body></html>
