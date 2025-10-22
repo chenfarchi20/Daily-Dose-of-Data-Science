@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<!-- saved from url=(0057)https://www.dailydoseofds.com/mlops-crash-course-part-12/ -->
+<html lang="en" data-color-scheme="light"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!--     <meta property="og:image" content="https://www.dailydoseofds.com/content/images/2024/11/landing-page-15.svg" />
+    <meta property="og:title" content="Daily Dose of Data Science" /> -->
+
+    <!-- <meta property="twitter:image" content="https://www.dailydoseofds.com/content/images/2024/11/landing-page-15.svg" /> -->
+
+    <title>The Full MLOps Blueprint: Model Deployment—Part B</title>
+    <title></title>
+
+    
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="theme-color" content="#54b6f2">
+
+
+    <link rel="preload" href="./mlops-crash-course-part-12_files/app.min.js" as="script">
+    <link rel="preload" href="./mlops-crash-course-part-12_files/app.min.css" as="style">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+
+
+
+
+
+
+
+
+    <link rel="stylesheet" href="./mlops-crash-course-part-12_files/css2" as="style" onload="this.onload=null;this.rel=&#39;stylesheet&#39;" crossorigin="">
+    <style>body { --font-body: 'Noto Serif', serif; --font-headings: 'Noto Serif', serif; }</style>
+
+
+
+
+
+    <script type="text/javascript" async="" src="./mlops-crash-course-part-12_files/reb2b.js.gz"></script><script async="" defer="" src="./mlops-crash-course-part-12_files/app.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./mlops-crash-course-part-12_files/app.min.css">
+
+    <style>
+  :root {
+    --global-max-width: 1080px; /* site max width */
+    --global-content-width: 640px; /* post-content-width */
+    --global-wide-width: 960px; /* site max width */
+    --global-radius: 12px; /* default radius */
+    --global-radius-rounded: 30px;
+    --global-gallery-gap: 1em; /* Image gallery distance between images */
+    --global-hyphens: none; /* none/auto */
+    --global-header-height: 72px;
+    --global-theme-notifications: visible; /* visible/hidden */
+    --global-progress-bar: visible; /* visible/hidden */
+    --global-content-preview-fading: 0%; /* 50%-100% for fading effect */
+    --global-scroll-behavior: smooth;
+  }
+</style>
+
+<script>
+  let preferredTheme = localStorage.getItem('PREFERRED_COLOR_SCHEME') || `light`;
+  document.documentElement.setAttribute('data-color-scheme', preferredTheme);
+  
+  // Global values needed
+  const themeGlobal = {
+    currentPage: parseInt(''),
+    nextPage: parseInt(''),
+    nextPageLink: '',
+    maxPages: parseInt(''), 
+    lastPage: `` === `` ? true : false,
+    postsPerPage: parseInt('8'),
+    scrollPos: 0,
+    imageLightbox: false
+  }
+
+  // Calculate contrast & HSL value;
+  function getBrandColorInfo(hexcolor) {
+    // get contrast
+    if (hexcolor.slice(0, 1) === '#') { hexcolor = hexcolor.slice(1); }
+    if (hexcolor.length === 3) { hexcolor = hexcolor.split('').map(function (hex) { return hex + hex;}).join(''); }
+    let r = parseInt(hexcolor.substr(0,2),16), g = parseInt(hexcolor.substr(2,2),16), b = parseInt(hexcolor.substr(4,2),16);
+    let yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    const colorContrast = (yiq >= 128) ? '#000' : '#fff';
+
+    //get HSL
+    r /= 255, g /= 255, b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min)  /  2;  
+    if ( max == min ) { h = s = 0; } else {
+      let d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch(max){
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    const colorHSL = [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+
+    // return
+    return { colorContrast, colorHSL }
+  };
+
+  const brandColor = getBrandColorInfo("#54b6f2");
+  let style = document.createElement('style');
+  style.innerHTML = `:root { 
+    --color-brand-contrast: ${brandColor.colorContrast}; 
+    --color-brand-h: ${brandColor.colorHSL[0]};
+    --color-brand-s: ${brandColor.colorHSL[1]}%;
+    --color-brand-l: ${brandColor.colorHSL[2]}%;
+    --color-brand-hsl: ${brandColor.colorHSL[0]} ${brandColor.colorHSL[1]}% ${brandColor.colorHSL[2]}%;
+  }`
+  document.getElementsByTagName('head')[0].appendChild(style);
+</script><style>:root { 
+    --color-brand-contrast: #000; 
+    --color-brand-h: 203;
+    --color-brand-s: 86%;
+    --color-brand-l: 64%;
+    --color-brand-hsl: 203 86% 64%;
+  }</style>
+
+    
+    
+<link rel="stylesheet" href="./mlops-crash-course-part-12_files/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<style>
+    :not(pre)>code[class*=language-],pre[class*=language-] {
+    background: #011627
+    }
+  
+    @media screen and (max-width: 600px) {
+  .katex {
+    font-size: 14px; /* Adjust the font size as needed */
+    overflow-x: auto; /* Add horizontal scrolling for long equations */
+    max-width: 100%; /* Set a maximum width for the equations */
+  }
+}
+    
+</style>
+
+
+
+<link rel="stylesheet" href="./mlops-crash-course-part-12_files/all.min.css">
+
+
+<script type="text/javascript" async="" src="./mlops-crash-course-part-12_files/MathJax.js">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        processEscapes: true
+    }
+});
+</script>
+
+<link rel="stylesheet" href="./mlops-crash-course-part-12_files/katex.css" crossorigin="anonymous">
+<script defer="" src="./mlops-crash-course-part-12_files/katex.js" crossorigin="anonymous"></script>
+<script defer="" src="./mlops-crash-course-part-12_files/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+
+<script src="./mlops-crash-course-part-12_files/prism-core.min.js" integrity="sha512-9khQRAUBYEJDCDVP2yw3LRUQvjJ0Pjx0EShmaQjcHa6AXiOv6qHQu9lCAIR8O+/D8FtaCoJ2c0Tf9Xo7hYH01Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="./mlops-crash-course-part-12_files/prism-autoloader.min.js" integrity="sha512-fTl/qcO1VgvKtOMApX2PdZzkziyr2stM65GYPLGuYMnuMm1z2JLJG6XVU7C/mR+E7xBUqCivykuhlzfqxXBXbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="./mlops-crash-course-part-12_files/prism-toolbar.min.js" integrity="sha512-st608h+ZqzliahyzEpETxzU0f7z7a9acN6AFvYmHvpFhmcFuKT8a22TT5TpKpjDa3pt3Wv7Z3SdQBCBdDPhyWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="./mlops-crash-course-part-12_files/prism-copy-to-clipboard.min.js" integrity="sha512-/kVH1uXuObC0iYgxxCKY41JdWOkKOxorFVmip+YVifKsJ4Au/87EisD1wty7vxN2kAhnWh6Yc8o/dSAXj6Oz7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script>
+    
+  document.addEventListener("DOMContentLoaded", function() {
+    // Find all the locations
+    const toolbarItems = document.querySelectorAll('.toolbar-item');
+    
+    // Iterate over each location
+    toolbarItems.forEach(toolbarItem => {
+      const copyButton = toolbarItem.querySelector('.copy-to-clipboard-button');
+
+      // Create the <i> element
+      const icon = document.createElement('i');
+      icon.className = 'far fa-copy'; // Assuming the correct FontAwesome icon class is 'far fa-copy'
+        
+       icon.style.marginRight = '5px'; // Adjust the margin value as needed
+
+      // Insert the <i> element before the existing content of the button
+      copyButton.insertBefore(icon, copyButton.firstChild);
+    });
+  });  
+
+</script>
+     
+
+    <meta name="description" content="MLOps and LLMOps Crash Course—Part 12.">
+    <link rel="icon" href="https://www.dailydoseofds.com/content/images/size/w256h256/format/png/2023/06/logo-subsatck2-1.svg" type="image/png">
+    <link rel="canonical" href="https://www.dailydoseofds.com/mlops-crash-course-part-12/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <meta property="og:site_name" content="Daily Dose of Data Science">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Full MLOps Blueprint: Model Deployment—Part B">
+    <meta property="og:description" content="MLOps and LLMOps Crash Course—Part 12.">
+    <meta property="og:url" content="https://www.dailydoseofds.com/mlops-crash-course-part-12/">
+    <meta property="og:image" content="https://www.dailydoseofds.com/content/images/size/w1200/2025/10/Sanyog-MLOps_-_I.png">
+    <meta property="article:published_time" content="2025-10-11T18:54:14.000Z">
+    <meta property="article:modified_time" content="2025-10-11T18:54:14.000Z">
+    <meta property="article:tag" content="MLOps Crash Course">
+    <meta property="article:tag" content="MLOps">
+    <meta property="article:tag" content="Deployment">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Full MLOps Blueprint: Model Deployment—Part B">
+    <meta name="twitter:description" content="MLOps and LLMOps Crash Course—Part 12.">
+    <meta name="twitter:url" content="https://www.dailydoseofds.com/mlops-crash-course-part-12/">
+    <meta name="twitter:image" content="https://www.dailydoseofds.com/content/images/size/w1200/2025/10/Sanyog-MLOps_-_I.png">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Avi Chawla">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="MLOps Crash Course, MLOps, Deployment">
+    <meta name="twitter:site" content="@_avichawla">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="857">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Daily Dose of Data Science",
+        "url": "https://www.dailydoseofds.com/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.dailydoseofds.com/content/images/2023/06/logo-subsatck2.svg"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Avi Chawla",
+        "image": {
+            "@type": "ImageObject",
+            "url": "https://www.dailydoseofds.com/content/images/2024/12/avi-google.jpg",
+            "width": 287,
+            "height": 303
+        },
+        "url": "https://www.dailydoseofds.com/author/avi/",
+        "sameAs": []
+    },
+    "contributor": [
+        {
+            "@type": "Person",
+            "name": "Akshay Pachaar",
+            "image": {
+                "@type": "ImageObject",
+                "url": "https://www.dailydoseofds.com/content/images/2024/11/38653995.png"
+            },
+            "url": "https://www.dailydoseofds.com/author/akshay/",
+            "sameAs": []
+        }
+    ],
+    "headline": "The Full MLOps Blueprint: Model Deployment—Part B",
+    "url": "https://www.dailydoseofds.com/mlops-crash-course-part-12/",
+    "datePublished": "2025-10-11T18:54:14.000Z",
+    "dateModified": "2025-10-11T18:54:14.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://www.dailydoseofds.com/content/images/size/w1200/2025/10/Sanyog-MLOps_-_I.png",
+        "width": 1200,
+        "height": 857
+    },
+    "keywords": "MLOps Crash Course, MLOps, Deployment",
+    "description": "MLOps and LLMOps Crash Course—Part 12.",
+    "mainEntityOfPage": "https://www.dailydoseofds.com/mlops-crash-course-part-12/"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 6.4">
+    <link rel="alternate" type="application/rss+xml" title="Daily Dose of Data Science" href="https://www.dailydoseofds.com/rss/">
+    <script defer="" src="./mlops-crash-course-part-12_files/portal.min.js" data-i18n="true" data-ghost="https://www.dailydoseofds.com/" data-key="933dba8c65eaaa9a2f6c0be670" data-api="https://daily-dose-of-data-science.ghost.io/ghost/api/content/" data-locale="en" data-members-signin-otc="false" data-members-signin-otc-alpha="false" crossorigin="anonymous"></script><style id="gh-members-styles">.gh-post-upgrade-cta-content,
+.gh-post-upgrade-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    width: 100%;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.gh-post-upgrade-cta-content {
+    border-radius: 8px;
+    padding: 40px 4vw;
+}
+
+.gh-post-upgrade-cta h2 {
+    color: #ffffff;
+    font-size: 28px;
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta p {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta small {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+}
+
+.gh-post-upgrade-cta a {
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a:hover {
+    color: #ffffff;
+    opacity: 0.8;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a.gh-btn {
+    display: block;
+    background: #ffffff;
+    text-decoration: none;
+    margin: 28px 0 0;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gh-post-upgrade-cta a.gh-btn:hover {
+    opacity: 0.92;
+}</style><script async="" src="./mlops-crash-course-part-12_files/saved_resource"></script>
+    <script defer="" src="./mlops-crash-course-part-12_files/sodo-search.min.js" data-key="933dba8c65eaaa9a2f6c0be670" data-styles="https://cdn.jsdelivr.net/ghost/sodo-search@~1.8/umd/main.css" data-sodo-search="https://daily-dose-of-data-science.ghost.io/" data-locale="en" crossorigin="anonymous"></script>
+    
+    <link href="https://www.dailydoseofds.com/webmentions/receive/" rel="webmention">
+    <script defer="" src="./mlops-crash-course-part-12_files/cards.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./mlops-crash-course-part-12_files/cards.min.css">
+    <script defer="" src="./mlops-crash-course-part-12_files/comment-counts.min.js" data-ghost-comments-counts-api="https://www.dailydoseofds.com/members/api/comments/counts/"></script>
+    <script defer="" src="./mlops-crash-course-part-12_files/member-attribution.min.js"></script>
+    <script defer="" src="./mlops-crash-course-part-12_files/ghost-stats.min.js" data-stringify-payload="false" data-datasource="analytics_events" data-storage="localStorage" data-host="https://www.dailydoseofds.com/.ghost/analytics/api/v1/page_hit" tb_site_uuid="d8254d8f-566a-42ac-8bcd-138671e20542" tb_post_uuid="3a605e6d-5967-41d3-9462-4893c9f51013" tb_post_type="post" tb_member_uuid="16327f5c-ae2a-4c35-ae17-2063de1d6954" tb_member_status="paid"></script><style>:root {--ghost-accent-color: #54b6f2;}</style>
+    <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="43b2ed2e-3626-48d0-8017-811d7371e623";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script><script src="./mlops-crash-course-part-12_files/l.js" async=""></script>
+
+
+<style>
+    
+    .formkit-close {
+    display: none;
+}
+
+</style>
+
+<!-- Google tag (gtag.js) -->
+<script async="" src="./mlops-crash-course-part-12_files/js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0FQY1YMJT');
+</script>
+
+
+ <script>
+    !function () {var reb2b = window.reb2b = window.reb2b || [];
+    if (reb2b.invoked) return;reb2b.invoked = true;reb2b.methods = ["identify", "collect"];
+    reb2b.factory = function (method) {return function () {var args = Array.prototype.slice.call(arguments);
+    args.unshift(method);reb2b.push(args);return reb2b;};};
+    for (var i = 0; i < reb2b.methods.length; i++) {var key = reb2b.methods[i];reb2b[key] = reb2b.factory(key);}
+    reb2b.load = function (key) {var script = document.createElement("script");script.type = "text/javascript";script.async = true;
+    script.src = "https://s3-us-west-2.amazonaws.com/b2bjsstore/b/" + key + "/reb2b.js.gz";
+    var first = document.getElementsByTagName("script")[0];
+    first.parentNode.insertBefore(script, first);};
+    reb2b.SNIPPET_VERSION = "1.0.1";reb2b.load("46DJ4HMK7E61");}();
+  </script>
+
+
+<script defer="" data-domain="dailydoseofds.com" src="./mlops-crash-course-part-12_files/script.js"></script>
+
+
+<style>
+                  .overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.8);
+                    display: none;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                  }
+
+                  .overlay img {
+                    max-width: 90%;
+                    max-height: 90%;
+                    border-radius: 5px;
+                    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+                      cursor: zoom-in;
+                  }
+                  </style>
+
+                  <script>
+                      document.addEventListener('DOMContentLoaded', function() {
+                    var overlay = document.createElement('div');
+                    overlay.classList.add('overlay');
+                    overlay.addEventListener('click', function() {
+                      overlay.style.display = 'none';
+                    });
+                    document.body.appendChild(overlay);
+
+                    var images = document.querySelectorAll('.kg-image');
+                    images.forEach(function(image) {
+                      image.addEventListener('click', function() {
+                        var imgSrc = image.getAttribute('src');
+                        var imgAlt = image.getAttribute('alt');
+                        var img = document.createElement('img');
+                        img.setAttribute('src', imgSrc);
+                        img.setAttribute('alt', imgAlt);
+                        overlay.innerHTML = '';
+                        overlay.appendChild(img);
+                        overlay.style.display = 'flex';
+                      });
+                      image.addEventListener('mouseenter', function() {
+                        image.style.cursor = 'zoom-in';
+                      });
+                      image.addEventListener('mouseleave', function() {
+                        image.style.cursor = 'default';
+                      });
+                    });
+
+                    document.addEventListener('keydown', function(event) {
+                      if (event.key === 'Escape') {
+                        overlay.style.display = 'none';
+                      }
+                    });
+                  });
+                      
+                  </script>
+
+<script>
+    (function(u, x, s, n, i, f) {
+        if (window.location.href.includes("membership")) {
+            u.ux = u.ux || function() {
+                (u.ux.q = u.ux.q || []).push(arguments);
+            };
+            i = x.getElementsByTagName('head')[0];
+            f = x.createElement('script');
+            f.async = 1;
+            f.src = s + n;
+            i.appendChild(f);
+        }
+    })(window, document, 'https://api.uxsniff.com/cdn/js/uxsnf_track', '.js');
+</script>
+
+
+<style>
+/* Ensure video containers are responsive */
+.kg-video-card video {
+    width: 100% !important;
+    max-width: 100%;
+    height: auto !important;
+    object-fit: contain;
+}
+
+/* On small screens, prevent video overflow */
+@media (max-width: 768px) {
+    .kg-video-card {
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    video {
+        max-width: 100%;
+        height: auto !important;
+    }
+}
+</style>
+
+<script>
+function updateVideoControls() {
+    // Remove custom Ghost overlay and container if they exist
+    document.querySelectorAll('.kg-video-overlay, .kg-video-player-container').forEach(function(element) {
+        element.parentNode.removeChild(element);
+    });
+
+    document.querySelectorAll('video').forEach(function(video) {
+        video.setAttribute('controls', 'true');
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('controlsList', 'nodownload'); // This hides the download button in most browsers
+
+        // Responsive video styles
+        video.style.maxWidth = "100%";
+        video.style.height = "auto";
+
+        // Optional: click-to-toggle play/pause
+        video.addEventListener('click', function() {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        });
+
+        // Optional: move playback slightly forward to avoid thumbnail-only state
+        video.addEventListener('loadedmetadata', function() {
+            video.currentTime = 1;
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateVideoControls();
+
+    // Watch for dynamically inserted videos (Ghost may inject them after page load)
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList') {
+                updateVideoControls();
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
+  <style class="fslightbox-styles">.fslightbox-absoluted{position:absolute;top:0;left:0}.fslightbox-fade-in{animation:fslightbox-fade-in .3s cubic-bezier(0,0,.7,1)}.fslightbox-fade-out{animation:fslightbox-fade-out .3s ease}.fslightbox-fade-in-strong{animation:fslightbox-fade-in-strong .3s cubic-bezier(0,0,.7,1)}.fslightbox-fade-out-strong{animation:fslightbox-fade-out-strong .3s ease}@keyframes fslightbox-fade-in{from{opacity:.65}to{opacity:1}}@keyframes fslightbox-fade-out{from{opacity:.35}to{opacity:0}}@keyframes fslightbox-fade-in-strong{from{opacity:.3}to{opacity:1}}@keyframes fslightbox-fade-out-strong{from{opacity:1}to{opacity:0}}.fslightbox-cursor-grabbing{cursor:grabbing}.fslightbox-full-dimension{width:100%;height:100%}.fslightbox-open{overflow:hidden;height:100%}.fslightbox-flex-centered{display:flex;justify-content:center;align-items:center}.fslightbox-opacity-0{opacity:0!important}.fslightbox-opacity-1{opacity:1!important}.fslightbox-scrollbarfix{padding-right:17px}.fslightbox-transform-transition{transition:transform .3s}.fslightbox-container{font-family:Arial,sans-serif;position:fixed;top:0;left:0;background:linear-gradient(rgba(30,30,30,.9),#000 1810%);touch-action:pinch-zoom;z-index:1000000000;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}.fslightbox-container *{box-sizing:border-box}.fslightbox-svg-path{transition:fill .15s ease;fill:#ddd}.fslightbox-nav{height:45px;width:100%;position:absolute;top:0;left:0}.fslightbox-slide-number-container{display:flex;justify-content:center;align-items:center;position:relative;height:100%;font-size:15px;color:#d7d7d7;z-index:0;max-width:55px;text-align:left}.fslightbox-slide-number-container .fslightbox-flex-centered{height:100%}.fslightbox-slash{display:block;margin:0 5px;width:1px;height:12px;transform:rotate(15deg);background:#fff}.fslightbox-toolbar{position:absolute;z-index:3;right:0;top:0;height:100%;display:flex;background:rgba(35,35,35,.65)}.fslightbox-toolbar-button{height:100%;width:45px;cursor:pointer}.fslightbox-toolbar-button:hover .fslightbox-svg-path{fill:#fff}.fslightbox-slide-btn-container{display:flex;align-items:center;padding:12px 12px 12px 6px;position:absolute;top:50%;cursor:pointer;z-index:3;transform:translateY(-50%)}@media (min-width:476px){.fslightbox-slide-btn-container{padding:22px 22px 22px 6px}}@media (min-width:768px){.fslightbox-slide-btn-container{padding:30px 30px 30px 6px}}.fslightbox-slide-btn-container:hover .fslightbox-svg-path{fill:#f1f1f1}.fslightbox-slide-btn{padding:9px;font-size:26px;background:rgba(35,35,35,.65)}@media (min-width:768px){.fslightbox-slide-btn{padding:10px}}@media (min-width:1600px){.fslightbox-slide-btn{padding:11px}}.fslightbox-slide-btn-container-previous{left:0}@media (max-width:475.99px){.fslightbox-slide-btn-container-previous{padding-left:3px}}.fslightbox-slide-btn-container-next{right:0;padding-left:12px;padding-right:3px}@media (min-width:476px){.fslightbox-slide-btn-container-next{padding-left:22px}}@media (min-width:768px){.fslightbox-slide-btn-container-next{padding-left:30px}}@media (min-width:476px){.fslightbox-slide-btn-container-next{padding-right:6px}}.fslightbox-down-event-detector{position:absolute;z-index:1}.fslightbox-slide-swiping-hoverer{z-index:4}.fslightbox-invalid-file-wrapper{font-size:22px;color:#eaebeb;margin:auto}.fslightbox-video{object-fit:cover}.fslightbox-youtube-iframe{border:0}.fslightboxl{display:block;margin:auto;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:67px;height:67px}.fslightboxl div{box-sizing:border-box;display:block;position:absolute;width:54px;height:54px;margin:6px;border:5px solid;border-color:#999 transparent transparent transparent;border-radius:50%;animation:fslightboxl 1.2s cubic-bezier(.5,0,.5,1) infinite}.fslightboxl div:nth-child(1){animation-delay:-.45s}.fslightboxl div:nth-child(2){animation-delay:-.3s}.fslightboxl div:nth-child(3){animation-delay:-.15s}@keyframes fslightboxl{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}.fslightbox-source{position:relative;z-index:2;opacity:0}</style><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">.mjx-chtml {display: inline-block; line-height: 0; text-indent: 0; text-align: left; text-transform: none; font-style: normal; font-weight: normal; font-size: 100%; font-size-adjust: none; letter-spacing: normal; word-wrap: normal; word-spacing: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; margin: 0; padding: 1px 0}
+.MJXc-display {display: block; text-align: center; margin: 1em 0; padding: 0}
+.mjx-chtml[tabindex]:focus, body :focus .mjx-chtml[tabindex] {display: inline-table}
+.mjx-full-width {text-align: center; display: table-cell!important; width: 10000em}
+.mjx-math {display: inline-block; border-collapse: separate; border-spacing: 0}
+.mjx-math * {display: inline-block; -webkit-box-sizing: content-box!important; -moz-box-sizing: content-box!important; box-sizing: content-box!important; text-align: left}
+.mjx-numerator {display: block; text-align: center}
+.mjx-denominator {display: block; text-align: center}
+.MJXc-stacked {height: 0; position: relative}
+.MJXc-stacked > * {position: absolute}
+.MJXc-bevelled > * {display: inline-block}
+.mjx-stack {display: inline-block}
+.mjx-op {display: block}
+.mjx-under {display: table-cell}
+.mjx-over {display: block}
+.mjx-over > * {padding-left: 0px!important; padding-right: 0px!important}
+.mjx-under > * {padding-left: 0px!important; padding-right: 0px!important}
+.mjx-stack > .mjx-sup {display: block}
+.mjx-stack > .mjx-sub {display: block}
+.mjx-prestack > .mjx-presup {display: block}
+.mjx-prestack > .mjx-presub {display: block}
+.mjx-delim-h > .mjx-char {display: inline-block}
+.mjx-surd {vertical-align: top}
+.mjx-mphantom * {visibility: hidden}
+.mjx-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 2px 3px; font-style: normal; font-size: 90%}
+.mjx-annotation-xml {line-height: normal}
+.mjx-menclose > svg {fill: none; stroke: currentColor}
+.mjx-mtr {display: table-row}
+.mjx-mlabeledtr {display: table-row}
+.mjx-mtd {display: table-cell; text-align: center}
+.mjx-label {display: table-row}
+.mjx-box {display: inline-block}
+.mjx-block {display: block}
+.mjx-span {display: inline}
+.mjx-char {display: block; white-space: pre}
+.mjx-itable {display: inline-table; width: auto}
+.mjx-row {display: table-row}
+.mjx-cell {display: table-cell}
+.mjx-table {display: table; width: 100%}
+.mjx-line {display: block; height: 0}
+.mjx-strut {width: 0; padding-top: 1em}
+.mjx-vsize {width: 0}
+.MJXc-space1 {margin-left: .167em}
+.MJXc-space2 {margin-left: .222em}
+.MJXc-space3 {margin-left: .278em}
+.mjx-chartest {display: block; visibility: hidden; position: absolute; top: 0; line-height: normal; font-size: 500%}
+.mjx-chartest .mjx-char {display: inline}
+.mjx-chartest .mjx-box {padding-top: 1000px}
+.MJXc-processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+.MJXc-processed {display: none}
+.mjx-test {display: block; font-style: normal; font-weight: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-transform: none; letter-spacing: normal; word-spacing: normal; overflow: hidden; height: 1px}
+.mjx-ex-box-test {position: absolute; width: 1px; height: 60ex}
+.mjx-line-box-test {display: table!important}
+.mjx-line-box-test span {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+#MathJax_CHTML_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+.mjx-chtml .mjx-noError {line-height: 1.2; vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+.MJXc-TeX-unknown-R {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: normal; font-weight: normal}
+.MJXc-TeX-unknown-I {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: italic; font-weight: normal}
+.MJXc-TeX-unknown-B {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: normal; font-weight: bold}
+.MJXc-TeX-unknown-BI {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: italic; font-weight: bold}
+.MJXc-TeX-ams-R {font-family: MJXc-TeX-ams-R,MJXc-TeX-ams-Rw}
+.MJXc-TeX-cal-B {font-family: MJXc-TeX-cal-B,MJXc-TeX-cal-Bx,MJXc-TeX-cal-Bw}
+.MJXc-TeX-frak-R {font-family: MJXc-TeX-frak-R,MJXc-TeX-frak-Rw}
+.MJXc-TeX-frak-B {font-family: MJXc-TeX-frak-B,MJXc-TeX-frak-Bx,MJXc-TeX-frak-Bw}
+.MJXc-TeX-math-BI {font-family: MJXc-TeX-math-BI,MJXc-TeX-math-BIx,MJXc-TeX-math-BIw}
+.MJXc-TeX-sans-R {font-family: MJXc-TeX-sans-R,MJXc-TeX-sans-Rw}
+.MJXc-TeX-sans-B {font-family: MJXc-TeX-sans-B,MJXc-TeX-sans-Bx,MJXc-TeX-sans-Bw}
+.MJXc-TeX-sans-I {font-family: MJXc-TeX-sans-I,MJXc-TeX-sans-Ix,MJXc-TeX-sans-Iw}
+.MJXc-TeX-script-R {font-family: MJXc-TeX-script-R,MJXc-TeX-script-Rw}
+.MJXc-TeX-type-R {font-family: MJXc-TeX-type-R,MJXc-TeX-type-Rw}
+.MJXc-TeX-cal-R {font-family: MJXc-TeX-cal-R,MJXc-TeX-cal-Rw}
+.MJXc-TeX-main-B {font-family: MJXc-TeX-main-B,MJXc-TeX-main-Bx,MJXc-TeX-main-Bw}
+.MJXc-TeX-main-I {font-family: MJXc-TeX-main-I,MJXc-TeX-main-Ix,MJXc-TeX-main-Iw}
+.MJXc-TeX-main-R {font-family: MJXc-TeX-main-R,MJXc-TeX-main-Rw}
+.MJXc-TeX-math-I {font-family: MJXc-TeX-math-I,MJXc-TeX-math-Ix,MJXc-TeX-math-Iw}
+.MJXc-TeX-size1-R {font-family: MJXc-TeX-size1-R,MJXc-TeX-size1-Rw}
+.MJXc-TeX-size2-R {font-family: MJXc-TeX-size2-R,MJXc-TeX-size2-Rw}
+.MJXc-TeX-size3-R {font-family: MJXc-TeX-size3-R,MJXc-TeX-size3-Rw}
+.MJXc-TeX-size4-R {font-family: MJXc-TeX-size4-R,MJXc-TeX-size4-Rw}
+@font-face {font-family: MJXc-TeX-ams-R; src: local('MathJax_AMS'), local('MathJax_AMS-Regular')}
+@font-face {font-family: MJXc-TeX-ams-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_AMS-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_AMS-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_AMS-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-cal-B; src: local('MathJax_Caligraphic Bold'), local('MathJax_Caligraphic-Bold')}
+@font-face {font-family: MJXc-TeX-cal-Bx; src: local('MathJax_Caligraphic'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-cal-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Caligraphic-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Caligraphic-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-frak-R; src: local('MathJax_Fraktur'), local('MathJax_Fraktur-Regular')}
+@font-face {font-family: MJXc-TeX-frak-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Fraktur-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Fraktur-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Fraktur-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-frak-B; src: local('MathJax_Fraktur Bold'), local('MathJax_Fraktur-Bold')}
+@font-face {font-family: MJXc-TeX-frak-Bx; src: local('MathJax_Fraktur'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-frak-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Fraktur-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Fraktur-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Fraktur-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-math-BI; src: local('MathJax_Math BoldItalic'), local('MathJax_Math-BoldItalic')}
+@font-face {font-family: MJXc-TeX-math-BIx; src: local('MathJax_Math'); font-weight: bold; font-style: italic}
+@font-face {font-family: MJXc-TeX-math-BIw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Math-BoldItalic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Math-BoldItalic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Math-BoldItalic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-sans-R; src: local('MathJax_SansSerif'), local('MathJax_SansSerif-Regular')}
+@font-face {font-family: MJXc-TeX-sans-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_SansSerif-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_SansSerif-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_SansSerif-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-sans-B; src: local('MathJax_SansSerif Bold'), local('MathJax_SansSerif-Bold')}
+@font-face {font-family: MJXc-TeX-sans-Bx; src: local('MathJax_SansSerif'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-sans-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_SansSerif-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_SansSerif-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_SansSerif-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-sans-I; src: local('MathJax_SansSerif Italic'), local('MathJax_SansSerif-Italic')}
+@font-face {font-family: MJXc-TeX-sans-Ix; src: local('MathJax_SansSerif'); font-style: italic}
+@font-face {font-family: MJXc-TeX-sans-Iw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_SansSerif-Italic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_SansSerif-Italic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_SansSerif-Italic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-script-R; src: local('MathJax_Script'), local('MathJax_Script-Regular')}
+@font-face {font-family: MJXc-TeX-script-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Script-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Script-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Script-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-type-R; src: local('MathJax_Typewriter'), local('MathJax_Typewriter-Regular')}
+@font-face {font-family: MJXc-TeX-type-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Typewriter-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Typewriter-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Typewriter-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-cal-R; src: local('MathJax_Caligraphic'), local('MathJax_Caligraphic-Regular')}
+@font-face {font-family: MJXc-TeX-cal-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Caligraphic-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Caligraphic-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-main-B; src: local('MathJax_Main Bold'), local('MathJax_Main-Bold')}
+@font-face {font-family: MJXc-TeX-main-Bx; src: local('MathJax_Main'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-main-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Main-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Main-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Main-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-main-I; src: local('MathJax_Main Italic'), local('MathJax_Main-Italic')}
+@font-face {font-family: MJXc-TeX-main-Ix; src: local('MathJax_Main'); font-style: italic}
+@font-face {font-family: MJXc-TeX-main-Iw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Main-Italic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Main-Italic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Main-Italic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-main-R; src: local('MathJax_Main'), local('MathJax_Main-Regular')}
+@font-face {font-family: MJXc-TeX-main-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Main-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Main-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-math-I; src: local('MathJax_Math Italic'), local('MathJax_Math-Italic')}
+@font-face {font-family: MJXc-TeX-math-Ix; src: local('MathJax_Math'); font-style: italic}
+@font-face {font-family: MJXc-TeX-math-Iw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Math-Italic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Math-Italic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size1-R; src: local('MathJax_Size1'), local('MathJax_Size1-Regular')}
+@font-face {font-family: MJXc-TeX-size1-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Size1-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Size1-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Size1-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size2-R; src: local('MathJax_Size2'), local('MathJax_Size2-Regular')}
+@font-face {font-family: MJXc-TeX-size2-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Size2-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Size2-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size3-R; src: local('MathJax_Size3'), local('MathJax_Size3-Regular')}
+@font-face {font-family: MJXc-TeX-size3-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Size3-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Size3-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Size3-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size4-R; src: local('MathJax_Size4'), local('MathJax_Size4-Regular')}
+@font-face {font-family: MJXc-TeX-size4-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/eot/MathJax_Size4-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Size4-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/otf/MathJax_Size4-Regular.otf') format('opentype')}
+</style><style>.App{text-align:center}.App-logo{height:40vmin;pointer-events:none}@media (prefers-reduced-motion: no-preference){.App-logo{animation:App-logo-spin infinite 20s linear}}.App-header{background-color:#282c34;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:calc(10px + 2vmin);color:#fff}.App-link{color:#61dafb}@keyframes App-logo-spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}
+/*$vite$:1*/</style><style id="fit-vids-style">.fluid-width-video-wrapper{width:100%;position:relative;padding:0;}.fluid-width-video-wrapper iframe,.fluid-width-video-wrapper object,.fluid-width-video-wrapper embed {position:absolute;top:0;left:0;width:100%;height:100%;}</style><link href="https://client.relay.crisp.chat/" rel="dns-prefetch" crossorigin=""><link href="https://client.crisp.chat/" rel="preconnect" crossorigin=""><script src="./mlops-crash-course-part-12_files/client_default_85c2dd8.js" type="module" async=""></script><link href="./mlops-crash-course-part-12_files/client_default_85c2dd8.css" type="text/css" rel="stylesheet"></head>
+  <body class="post-template tag-hash-blog tag-mlops-crash-course-2 tag-mlops tag-deployment is-member is-paid-member"><div id="MathJax_Message" style="display: none;"></div>
+    <div class="progress-bar"></div>
+
+
+    <div id="parity-banner-container"></div>
+    
+
+    <header class="header js-header" data-nav-items="">
+  <div class="container wrapper is-rel flex items-center">
+    <div class="header-brand">
+<a href="https://www.dailydoseofds.com/">          <picture class="default-logo">
+  <source sizes="(max-width: 800px) 200px, 320px" srcset="/content/images/size/w300/format/webp/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/format/webp/2023/06/logo-subsatck2.svg 600w" type="image/webp">
+  <img class="header__logo" sizes="(max-width: 800px) 200px, 320px" data-srcset="/content/images/size/w300/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/2023/06/logo-subsatck2.svg 600w" srcset="/content/images/size/w30/2023/06/logo-subsatck2.svg 30w" data-src="/content/images/size/w100/2023/06/logo-subsatck2.svg" src="./mlops-crash-course-part-12_files/logo-subsatck2.svg" alt="Daily Dose of Data Science" loading="eager">
+</picture></a>    </div>
+
+    <span class="flex-1"></span>
+
+    <ul class="nav" data-items="8">
+
+
+
+
+        <li class="nav-newsletter" data-label="Newsletter" data-length="10" data-post="">
+          <a href="https://join.dailydoseofds.com/">
+            <span>Newsletter</span>
+          </a>
+        <ul></ul></li>
+
+
+
+
+
+
+
+        <li class="nav-more is-toggle is-mainitem" data-label="More" data-length="4" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#">
+            <span>More</span>
+          </a>
+        <ul class="nav submenu"><li class="nav-contact is-subitem" data-label="- Contact" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/contact/">
+            <span> Contact</span>
+          </a>
+        </li><li class="nav-faqs is-subitem" data-label="- FAQs" data-length="6" data-post="">
+          <a href="https://www.dailydoseofds.com/faq/">
+            <span> FAQs</span>
+          </a>
+        </li><li class="nav-about is-subitem" data-label="- About" data-length="7" data-post="">
+          <a href="https://www.dailydoseofds.com/about/">
+            <span> About</span>
+          </a>
+        </li></ul></li>
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        <li class="nav-search" data-label="Search 🔎" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#/search/">
+            <span>Search 🔎</span>
+          </a>
+        <ul></ul></li>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+        
+          
+
+
+
+
+</ul>
+
+    <button class="btn header-search-toggle" data-ghost-search="" title="Search" aria-label="Search">
+      <i class="icon icon-search">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <circle cx="10" cy="10" r="7"></circle>
+  <line x1="21" y1="21" x2="15" y2="15"></line>
+</svg>
+
+
+
+</i>    </button>
+
+    <button class="btn header-menu-toggle js-menu-toggle" title="Menu" aria-label="Menu">
+      <i class="icon icon-menu">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M4 8l16 0"></path>
+  <path d="M4 16l16 0"></path>
+</svg>
+</i>      <i class="icon icon-x">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <line x1="18" y1="6" x2="6" y2="18"></line>
+  <line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+</i>    </button>
+
+      <button class="header-user-toggle js-member-btn is-member" title="" aria-label="">
+          <img class="header-user-avatar" src="./mlops-crash-course-part-12_files/232fc807a6c59bc3ed5b76546707a32a.png" alt="Chen Farchi">
+        <i class="icon icon-user icon--md">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+  <circle cx="12" cy="7" r="4"></circle>
+</svg>
+</i>      </button>
+
+    <div class="member-menu js-member-menu">
+    <div class="member-user">
+      <div class="member-info flex flex-col">
+        <div class="member-name">Chen Farchi</div>
+        <span class="member-email">chen.farchi3@gmail.com</span>
+      </div>
+    </div>
+
+    <a href="https://www.dailydoseofds.com/account/" class="account-link">
+      <i class="icon icon-user icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+  <circle cx="12" cy="7" r="4"></circle>
+</svg>
+</i>Account
+    </a>
+
+    <a href="javascript:" data-members-signout="" class="signout-link">
+      <i class="icon icon-logout icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
+  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+  <polyline points="16 17 21 12 16 7"></polyline>
+  <line x1="21" y1="12" x2="9" y2="12"></line>
+</svg>
+</i>Sign out
+    </a>
+</div>
+    <span class="border-bottom"></span>
+
+  </div>
+</header>
+
+
+    <div class="menu js-menu">
+  <nav class="menu-navigation">
+    <ul class="nav" data-items="8">
+
+
+
+
+        <li class="nav-newsletter" data-label="Newsletter" data-length="10" data-post="">
+          <a href="https://join.dailydoseofds.com/">
+            <span>Newsletter</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-more is-toggle" data-label="More" data-length="4" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#">
+            <span>More</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-contact is-subitem" data-label="- Contact" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/contact/">
+            <span> Contact</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-faqs is-subitem" data-label="- FAQs" data-length="6" data-post="">
+          <a href="https://www.dailydoseofds.com/faq/">
+            <span> FAQs</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-about is-subitem" data-label="- About" data-length="7" data-post="">
+          <a href="https://www.dailydoseofds.com/about/">
+            <span> About</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-search" data-label="Search 🔎" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#/search/">
+            <span>Search 🔎</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+        
+          
+
+
+
+
+</ul>
+
+  </nav>
+</div>
+      
+    <main class="main">
+      
+
+  <div class="container wrapper">
+    <div class="post-hero is-post " data-feature-image="true" style="border-bottom: 1px solid var(--color-border); margin: 2em auto 2em;">
+  
+  <div class="post-hero__content flex flex-col">
+      <time class="post-hero__date" datetime="2025-10-12">Oct 12, 2025</time> 
+
+    <h1 class="post-hero__title">The Full MLOps Blueprint: Model Deployment—Part B</h1>
+   
+      <p class="post-hero__excerpt text-acc">MLOps and LLMOps Crash Course—Part 12.</p>
+
+      <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="61px" data-sizes="auto" srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyautosizes ls-is-cached lazyloaded" sizes="61px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-12_files/avi-google.jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="61px" data-sizes="auto" srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyautosizes ls-is-cached lazyloaded" sizes="61px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-12_files/38653995.png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</div>
+    <div class="post-toc js-post-toc is-visible is-rendered"> 
+  <button class="btn post-toc-toggle" aria-label="Table of Contents" onclick="this.parentNode.classList.toggle(&#39;is-visible&#39;)">
+    <span>Table of Contents</span>
+    <i class="icon icon-chevron-down icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+   <polyline points="6 9 12 15 18 9"></polyline>
+</svg>
+</i>  </button>
+  <div class="post-toc__content js-toc"><ol class="toc-list "><li class="toc-list-item is-active-li"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#recap" class="toc-link node-name--H2  is-active-link">Recap</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#prerequisites" class="toc-link node-name--H2 ">Prerequisites</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#images-and-containers-basics" class="toc-link node-name--H3 ">Images and containers basics</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#cloud-native-and-microservices-architecture" class="toc-link node-name--H3 ">Cloud-native and microservices architecture</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#service-meshes" class="toc-link node-name--H4 ">Service meshes</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#immutable-infrastructure" class="toc-link node-name--H4 ">Immutable infrastructure</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#microservices" class="toc-link node-name--H4 ">Microservices</a></li></ol></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#kubernetes-introduction" class="toc-link node-name--H2 ">Kubernetes: introduction</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#why-kubernetes" class="toc-link node-name--H3 ">Why Kubernetes?</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#what-kubernetes-provides" class="toc-link node-name--H3 ">What Kubernetes provides?</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#kubernetes-high-level-architecture-core-concepts" class="toc-link node-name--H2 ">Kubernetes: high-level architecture &amp; core concepts</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#cluster-control-plane-worker-nodes" class="toc-link node-name--H3 ">Cluster, control plane &amp; worker nodes</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#basic-terminologyabstractions" class="toc-link node-name--H3 ">Basic terminology/abstractions</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#control-plane-components" class="toc-link node-name--H3 ">Control plane components</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#kube-apiserver-api-server" class="toc-link node-name--H4 ">kube-apiserver (API Server)</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#etcd-key-value-store" class="toc-link node-name--H4 ">etcd (key-value store)</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#kube-scheduler" class="toc-link node-name--H4 ">kube-scheduler</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#kube-controller-manager-controller-manager" class="toc-link node-name--H4 ">kube-controller-manager (Controller Manager)</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#nodeworker-components" class="toc-link node-name--H3 ">Node/worker components</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#kubelet" class="toc-link node-name--H4 ">kubelet</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#container-runtime-cr" class="toc-link node-name--H4 ">Container runtime (CR)</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#kube-proxy-network-proxy" class="toc-link node-name--H4 ">kube-proxy (network proxy)</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#how-components-interact-workflows-and-control-loops" class="toc-link node-name--H3 ">How components interact: workflows and control loops</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#desired-state-%E2%86%92-actual-state-%E2%86%92-reconciliation" class="toc-link node-name--H4 ">Desired state → actual state → reconciliation</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#service-discovery-routing" class="toc-link node-name--H4 ">Service discovery &amp; routing</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#rolling-updates" class="toc-link node-name--H4 ">Rolling updates</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#failure-handling" class="toc-link node-name--H4 ">Failure handling</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#autoscaling" class="toc-link node-name--H4 ">Autoscaling</a></li></ol></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#hands-on-kubernetes-in-action" class="toc-link node-name--H2 ">Hands-on: Kubernetes in action</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#project-setup" class="toc-link node-name--H3 ">Project setup</a><ol class="toc-list  is-collapsible is-collapsed"><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#local-setup-kind" class="toc-link node-name--H4 ">Local setup (kind)</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#train-and-save-the-model" class="toc-link node-name--H3 ">Train and save the model</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#create-a-fastapi-app-for-inference" class="toc-link node-name--H3 ">Create a FastAPI app for inference</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#testing-the-api" class="toc-link node-name--H3 ">Testing the API</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#containerization" class="toc-link node-name--H3 ">Containerization</a></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#orchestration-and-deployment-with-kubernetes" class="toc-link node-name--H3 ">Orchestration and deployment with Kubernetes</a></li></ol></li><li class="toc-list-item"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#conclusion" class="toc-link node-name--H2 ">Conclusion</a></li></ol></div>
+
+
+</div>
+
+    
+    
+    <article class="post tag-hash-blog tag-mlops-crash-course-2 tag-mlops tag-deployment content post-access-paid">
+
+
+        
+      <h2 id="recap">Recap</h2><p>Before getting into Part 12 of this crash course, let’s quickly recap what we covered in the last part. </p><p>In part 11, we began our discussion on the deployment and monitoring phase of the MLOps lifecycle.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-16.png" class="kg-image" alt="" loading="lazy" width="1000" height="630" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-16.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-16.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>There, we learned about model deployment fundamentals, particularly model packaging formats, containerization, APIs, and the types of inference.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-18.png" class="kg-image" alt="" loading="lazy" width="1000" height="495" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-18.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-18.png 1000w" sizes="(min-width: 720px) 720px"></figure><p>We also discussed gRPC in detail; the how and why, plus where it finds its suitable applications.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-19.png" class="kg-image" alt="" loading="lazy" width="353" height="143"></figure><p>Finally, we walked through a comprehensive hands-on demo showing gRPC in action for ML settings.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-20.png" class="kg-image" alt="" loading="lazy" width="724" height="201" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-20.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-20.png 724w" sizes="(min-width: 720px) 720px"></figure><p>If you haven’t explored Part 11 yet, we strongly recommend going through it first, since it sets the foundations and flow for what's about to come.</p><p>Read it here:</p><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="https://www.dailydoseofds.com/mlops-crash-course-part-11/"><div class="kg-bookmark-content"><div class="kg-bookmark-title">The Full MLOps Blueprint: Model Deployment—Part A</div><div class="kg-bookmark-description">MLOps and LLMOps Crash Course—Part 11.</div><div class="kg-bookmark-metadata"><img class="kg-bookmark-icon" src="./mlops-crash-course-part-12_files/logo-subsatck2-1-146.svg" alt=""><span class="kg-bookmark-author">Daily Dose of Data Science</span><span class="kg-bookmark-publisher">Avi Chawla</span></div></div><div class="kg-bookmark-thumbnail"><img src="./mlops-crash-course-part-12_files/Sanyog-MLOps_-_I-3-2.png" alt="" onerror="this.style.display = &#39;none&#39;"></div></a></figure><p>In this chapter, we’ll continue our discussion on the deployment phase, diving deeper into important concepts, specifically Kubernetes.</p><p>As always, every notion will be explained through clear examples and walkthroughs to develop a solid understanding.</p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">This chapter assumes a solid foundation in software engineering, computer networks and OS related concepts. Rather than revisiting these foundational topics, the chapter emphasizes the systems-oriented aspects.</div></div><p>Let’s begin!</p><hr><h2 id="prerequisites">Prerequisites</h2><p>Before diving into Kubernetes, it’s essential to establish a foundational understanding of a few key concepts that underpin its architecture and philosophy. These include containerization, cloud-native principles, service meshes, immutable infrastructure, and microservices.</p><h3 id="images-and-containers-basics">Images and containers basics</h3><p>A container image is a lightweight, static, and immutable package containing all the necessary code, runtime, libraries, and configuration to run an application consistently across different environments.</p><p>A container, on the other hand, is a running, executable instance of a container image, functioning as a live application or service.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-21.png" class="kg-image" alt="" loading="lazy" width="650" height="533" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-21.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-21.png 650w"></figure><p>The image serves as a read-only template or blueprint, while the container is the active, isolated process that runs from that blueprint, similar to a class and its objects/instances in object-oriented design.</p><p>Because different applications often have conflicting dependencies, containers provide isolated environments, enabling multiple applications to run reliably on the same host without interference.</p><h3 id="cloud-native-and-microservices-architecture">Cloud-native and microservices architecture</h3><p>Cloud-native refers to designing and building applications specifically for the cloud environment, emphasizing scalability, resilience, and agility through modern development practices and cloud infrastructure.</p><p>The cloud-native ecosystem is typically composed of:</p><ul><li>Containers: lightweight, portable execution units</li><li>Service meshes: managing service-to-service communication</li><li>Microservices: modular application components</li><li>Immutable infrastructure: ensuring reproducibility and consistency</li><li>APIs: enabling interoperability and integration</li></ul><p>Together, these components form the backbone of scalable systems that can be continuously deployed and updated with minimal downtime.</p><h4 id="service-meshes">Service meshes</h4><p>A service mesh is an infrastructure layer that manages and secures communication between microservices.</p><p>It provides features such as:</p><ul><li>Traffic management and load balancing</li><li>Encryption and service authentication</li><li>Observability through metrics, logging, and tracing</li></ul><p>By offloading these concerns to the mesh (via proxy sidecars attached to each service), developers can focus on writing business logic, while operations teams manage reliability and performance uniformly across the system.</p><h4 id="immutable-infrastructure">Immutable infrastructure</h4><p>Immutable infrastructure is the practice of never modifying a deployed component, such as a server or container, after it’s running.</p><p>When an update or configuration change is required:</p><ul><li>A new version of the system is built from a standardized image.</li><li>It’s then deployed to replace the existing instance.</li><li>The old instance is decommissioned once validation (e.g., A/B testing or canary deployment) confirms success.</li></ul><p>This approach guarantees consistency, reliability, and reproducibility, as every deployment begins from a clean, known state.</p><p>A prime example is Docker containers, where each change means the creation of a fresh container.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-25.png" class="kg-image" alt="" loading="lazy" width="607" height="507" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-25.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-25.png 607w"></figure><p>Containers epitomize immutability; they are ephemeral and disposable, often described as “cattle, not pets”, highlighting a shift from manual maintenance to automated, scalable management.</p><h4 id="microservices">Microservices</h4><p>This is a variant of Service-Oriented Architecture (SOA) that arranges an application as a collection of loosely coupled, fine-grained services.</p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">Service-Oriented Architecture (SOA) is&nbsp;a software design pattern that structures applications as a collection of loosely coupled, independent, and reusable services.<br><br>Each service represents a specific functionality, providing a well-defined interface for other applications to consume without needing to know the internal implementation.</div></div><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-24.png" class="kg-image" alt="" loading="lazy" width="698" height="295" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-24.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-24.png 698w"></figure><p>Some key points about microservices:</p><ul><li>Services communicate using lightweight protocols (e.g., HTTP or gRPC).</li><li>They can be scaled independently and built by smaller teams using different programming languages.</li></ul><p>This modular approach fosters agility, enabling faster development, deployment, and maintenance cycles.</p><p>With these foundational concepts in place, we now have the essential groundwork for understanding how Kubernetes orchestrates and manages applications.</p><hr><h2 id="kubernetes-introduction">Kubernetes: introduction</h2><p>Kubernetes is an open-source system for automating the deployment, scaling, and management of containerized applications. It simplifies complex applications by orchestrating containers (packaged, portable units of software).</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-22.png" class="kg-image" alt="" loading="lazy" width="800" height="535" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-22.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-22.png 800w" sizes="(min-width: 720px) 720px"></figure><h3 id="why-kubernetes">Why Kubernetes?</h3><p>Over the last decade, many software systems (including ML systems) migrated from monoliths to microservices / modular architectures. Each component (e.g., model-serving, data ingestion, API front end) is packaged in containers.</p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">A monolith is like a single, big application where every part, from data handling to the user interface, is tightly connected and runs as one unit. This makes it easier to build in the beginning but harder to scale or update later. If one part fails or needs an update, you often have to redeploy the whole system.<br><br>A microservices (or modular) architecture, on the other hand, breaks this big system into smaller, independent components, like separate “mini-apps” where each responsible for one function (for example, data ingestion, model serving, or the API). These smaller parts communicate with each other, often through APIs, and can be developed, deployed, and scaled independently.</div></div><p>However, when you have many containers across many machines (or nodes), managing them manually becomes hard:</p><ul><li>Which node should run which container?</li><li>How to recover automatically, in case of failure?</li><li>How to scale containers up/down with load?</li><li>How to route traffic among them?</li><li>How to do rolling updates (updates with zero downtime)?</li></ul><p>Kubernetes, as a container orchestration system, automates much of that complexity.</p><h3 id="what-kubernetes-provides">What Kubernetes provides?</h3><p>Some of the key features of Kubernetes are:</p><ul><li>Automatic scheduling: Kubernetes decides on which node(s) to place containers (or pods, as the primitive) based on resource requirements and policies.</li><li>Self-healing: If a container crashes, Kubernetes restarts it. If a node dies, it shifts the container to a healthy node.</li><li>Scaling: It supports both manual and auto-scaling (based on CPU, memory, and custom metrics).</li><li>Rolling updates &amp; rollbacks: You can update container versions with minimal downtime, and rollback if something fails.</li><li>Service discovery &amp; load balancing: Containers can find each other via DNS, internal IPs, and requests are balanced among replicas.</li><li>Declarative configuration: You specify what the cluster should look like (e.g. “3 instances of model-serving”), and Kubernetes works to maintain that state.</li><li>Extensibility &amp; ecosystem: Many add-ons, custom resource definitions (CRDs), operators, service meshes, etc.</li></ul><p>Here's a quick summary diagram of the above-described features:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-26.png" class="kg-image" alt="" loading="lazy" width="1640" height="652" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-26.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-26.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-26.png 1600w, https://www.dailydoseofds.com/content/images/2025/10/image-26.png 1640w" sizes="(min-width: 720px) 720px"></figure><p>Kubernetes helps you deploy and manage model-serving, scalable inference endpoints, and microservices reliably in production.</p><p>With this introduction to Kubernetes in mind, let’s explore some of the architectural and conceptual details of Kubernetes.</p><hr><h2 id="kubernetes-high-level-architecture-core-concepts">Kubernetes: high-level architecture &amp; core concepts</h2><h3 id="cluster-control-plane-worker-nodes">Cluster, control plane &amp; worker nodes</h3><p>At its core, a Kubernetes system is a cluster, composed of:</p><ul><li>One (or more) control plane(s) (also called master nodes) that are responsible for making global decisions, scheduling, and maintaining cluster state.</li><li>Several worker nodes: the machines that actually run workloads (containers) under instructions from the control plane.</li></ul><p>The control plane and nodes communicate over APIs and internal protocols.</p><p>You can think of it like this:</p><ul><li>Control plane = "brain/decision maker"</li><li>Worker nodes = "execution agents/workers"</li></ul><p>Each cluster must have at least one worker node to run workloads; control plane components can themselves run on separate machines or co-locate (in simple setups).</p><p>The cluster architecture diagram below shows:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-23.png" class="kg-image" alt="" loading="lazy" width="1252" height="585" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-23.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-23.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-23.png 1252w" sizes="(min-width: 720px) 720px"></figure><ul><li>Control plane components: <code>kube-apiserver</code>, <code>etcd</code>, <code>kube-scheduler</code>, <code>controller manager</code></li><li>Worker node components: <code>kubelet</code>, <code>kube-proxy</code>, container runtime, pods &amp; containers</li><li>The networking layer connecting all nodes, and external access via <code>Service</code>, <code>Ingress</code>, etc.</li></ul><h3 id="basic-terminologyabstractions">Basic terminology/abstractions</h3><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-29.png" class="kg-image" alt="" loading="lazy" width="617" height="403" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-29.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-29.png 617w"></figure><p>Before diving deeper, we must understand a few key terms:</p><ul><li>Pod: The smallest deployable unit in Kubernetes. A pod can host one or multiple tightly coupled containers, which share the same network namespace (IP).</li><li>Node: A physical or virtual machine in the cluster, running pods.</li><li>Cluster: A set of nodes managed by a control plane.</li><li>Namespace: A logical partitioning inside a cluster (to isolate resources).</li><li>Deployment and ReplicaSet: Higher-level abstractions (workloads) to manage pods, specify how many replicas, etc.</li><li>Service: A stable abstraction (IP + DNS) over pods to allow reliable access (load balancing, discovery).</li><li>Ingress/Ingress Controller: Manages external access (HTTP routing) into services.</li><li>ConfigMap/Secret: For passing configuration or sensitive data into pods.</li><li>Volume/PersistentVolume: Storage abstractions for mounting data into pods.</li><li>Label &amp; Selector: Key-value tags attached to objects, used to filter / group resources (e.g. choose which pods a service should route to).</li><li>API objects: Kubernetes resources are represented as API objects with <code>spec</code> (desired state) and <code>status</code> (current state).</li></ul><p>These abstractions allow you to think declaratively: define what you want, not step-by-step how to manage containers.</p><p>Now, let’s dive into the controlling logic.</p><h3 id="control-plane-components">Control plane components</h3><p>These components coordinate the cluster-wide behavior, enforce the desired state, schedule workloads, etc.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-27-1.png" class="kg-image" alt="" loading="lazy" width="617" height="166" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-27-1.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-27-1.png 617w"></figure><h4 id="kube-apiserver-api-server">kube-apiserver (API Server)</h4><ul><li>This is the front door for the Kubernetes control plane. It exposes the Kubernetes API (RESTful), accepting HTTP/HTTPS requests (<code>kubectl</code>, controllers, other components) for CRUD operations on Kubernetes resources (Pods, Deployments, Services, etc.).</li><li>All components communicate via the API Server (i.e., controllers, scheduler, nodes).</li><li>The API server also interacts with the persistent store (<code>etcd</code>) to read/write cluster state.</li><li>It performs validation, authentication &amp; authorization.</li></ul><p>In short, it is the central hub. Without the API server, nothing else functions.</p><h4 id="etcd-key-value-store">etcd (key-value store)</h4><ul><li><code>etcd</code> is a distributed, strongly consistent key-value store that holds the entire cluster state (all Kubernetes object definitions, configurations, resource statuses, etc.).</li><li>It is the source of truth: every change to cluster resources is persisted here.</li><li>Kubernetes control plane components watch <code>etcd</code> for changes and respond appropriately.</li></ul><p>Because <code>etcd</code> is critical, you typically run it redundantly (multiple replicas) in production to avoid a single point of failure.</p><h4 id="kube-scheduler">kube-scheduler</h4><ul><li>The scheduler’s job is to pick which node a newly created pod should run on.</li><li>It watches for unscheduled pods (i.e., pods without a node assignment) via the API server, then applies scheduling logic: resource constraints (CPU, memory), tolerations, node capacity, etc.</li><li>Once it picks a node, it binds the pod to that node (via the API server).</li></ul><h4 id="kube-controller-manager-controller-manager">kube-controller-manager (Controller Manager)</h4><p>Runs a set of controllers as separate control loops (in a single binary). Controllers monitor the cluster state and make changes until the desired state matches the actual state.</p><p>Examples include:</p><ul><li>Replication controller/ReplicaSet controller: ensures the specified number of pod replicas are running.</li><li>Deployment controller: handles rolling updates, rollbacks, and scaling changes.</li><li>Node controller: monitors node health and reacts (e.g., mark node as “Not Ready”).</li><li>Service controller: handles service/endpoint objects.</li><li>Namespace controller, Garbage collector, etc.</li></ul><p>Each controller loops constantly: read state, then compare to the desired state, and finally take action to reconcile.</p><p>Together, these components maintain global cluster behavior: scheduling, scaling, reacting to failures, and maintaining consistency.</p><h3 id="nodeworker-components">Node/worker components</h3><p>These are the components on each worker node that carry out the execution of pods, manage networking, report status, etc.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-28-1.png" class="kg-image" alt="" loading="lazy" width="617" height="169" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-28-1.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-28-1.png 617w"></figure><h4 id="kubelet">kubelet</h4><ul><li>The <code>kubelet</code> is an agent that runs on every node.</li><li>It watches the API server for assigned pods, and ensures containers in those pods are running and healthy (via container runtime).</li><li>It starts/stops containers, reports status, handles health probes (liveness/readiness), etc.</li><li>It also sends heartbeats/status updates to the control plane.</li></ul><p>In short, the control plane tells kubelet “run these pods”, and the kubelet ensures they are running correctly on that node.</p><h4 id="container-runtime-cr">Container runtime (CR)</h4><ul><li>On each node, you need a container runtime that can actually pull container images, create and manage containers per spec.</li><li>Kubernetes interacts with it via the Container Runtime Interface (CRI).</li><li>Kubernetes historically used Docker as the container runtime, but now has evolved to support runtimes like Containerd.</li></ul><h4 id="kube-proxy-network-proxy">kube-proxy (network proxy)</h4><ul><li><code>kube-proxy</code> runs on each node and helps implement Kubernetes Service abstraction (cluster IP, load balancing).</li><li>It watches the API server for Service and Endpoint changes, and then configures local rules (iptables, IPVS) to forward traffic as needed to the actual pods backing a service.</li><li>It ensures that when a request hits a service’s virtual IP, traffic is forwarded to healthy pods.</li></ul><p>Hence, each node participates actively in running containers and networking while reporting back to the control plane.</p><p>Now that we understand all the different components, let's go ahead and see how they all actually interact together.</p><h3 id="how-components-interact-workflows-and-control-loops">How components interact: workflows and control loops</h3><p>Understanding the interaction patterns provides insight into how declarative behavior emerges. Let's explore the mechanisms in detail to see exactly how things work:</p><h4 id="desired-state-%E2%86%92-actual-state-%E2%86%92-reconciliation">Desired state → actual state → reconciliation</h4><ul><li>The user or system submits an API object (e.g. a Deployment job specifying 3 replicas, container image, resource limits).</li><li>This goes to the API server, gets stored in <code>etcd</code>.</li><li>The relevant controller (Deployment controller, ReplicaSet controller) sees that the current state (zero replicas) does not match the desired state (3), so it creates 3 pods.</li><li>For each pod, the scheduler assigns a node.</li><li>The API server communicates with that node’s kubelet.</li><li>The kubelet (on that node) pulls the container image and starts containers via the container runtime.</li><li>The node reports back its status.</li><li>The controller keeps checking, and if a pod fails, it restarts or recreates until 3 are healthy.</li></ul><p>Here is the high-level flow of desired state maintenance as a diagram:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-31.png" class="kg-image" alt="" loading="lazy" width="828" height="730" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-31.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-31.png 828w" sizes="(min-width: 720px) 720px"></figure><p>This is the control loop/reconciliation model: it continuously converges towards the declared desired state.</p><h4 id="service-discovery-routing">Service discovery &amp; routing</h4><ul><li>A Service object defines a logical set of pods (via label selectors) and an abstract IP + port.</li><li><code>kube-proxy</code> sets up rules so any traffic coming to that <code>IP:port</code> is forwarded to one of the pods backing it (load-balanced).</li><li>Pods refer to services via DNS (CoreDNS), so they can discover each other stably, without knowing dynamic pod IPs.</li></ul><h4 id="rolling-updates">Rolling updates</h4><ul><li>When the user updates a Deployment (change container image version), the Deployment controller (classic rollout logic) gradually replaces existing pod replicas with new version pods (e.g., create new pods, wait for readiness, delete old ones).</li><li>If something goes wrong, rollbacks can be triggered.</li></ul><p>Here is the complete flow summarized as a diagram:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-32.png" class="kg-image" alt="" loading="lazy" width="987" height="563" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-32.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-32.png 987w" sizes="(min-width: 720px) 720px"></figure><h4 id="failure-handling">Failure handling</h4><ul><li>If a node fails/becomes unreachable, the Node controller marks it as “NotReady.”</li><li>Pods on that node are eventually considered lost, and replacement pods are scheduled on healthy nodes.</li><li>If a pod container crashes or fails a readiness probe, the kubelet restarts it (if defined to).</li><li>Controllers monitor and enforce replica counts, so the system remains resilient.</li></ul><h4 id="autoscaling">Autoscaling</h4><ul><li>Horizontal Pod Autoscaler (HPA): monitors metrics (CPU/memory/custom metrics) and scales the number of replicas.</li><li>Vertical Pod Autoscaler (VPA): adjusts the CPU and memory requests and limits for containers within pods to "right-size" them based on historical resource usage.</li><li>Cluster autoscaler (in cloud setups): adds or removes nodes based on demand so that pods can be scheduled.</li></ul><p>Thus, the system can automatically adapt to load and failure.</p><p>Now that we understand the different core components and how they work and interact with each other, let's go ahead and dive into a practical exercise on Kubernetes.</p><hr><h2 id="hands-on-kubernetes-in-action">Hands-on: Kubernetes in action</h2><p>In the previous part, we had trained a basic regression model that mapped the relation <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-1-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-1" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-2" class="mjx-mrow"><span id="MJXc-Node-3" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.237em; padding-bottom: 0.472em; padding-right: 0.006em;">y</span></span><span id="MJXc-Node-4" class="mjx-mo MJXc-space3"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.096em; padding-bottom: 0.331em;">=</span></span><span id="MJXc-Node-5" class="mjx-mn MJXc-space3"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.378em; padding-bottom: 0.331em;">2</span></span><span id="MJXc-Node-6" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.237em; padding-bottom: 0.284em;">x</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>y</mi><mo>=</mo><mn>2</mn><mi>x</mi></math></span></span><script type="math/tex" id="MathJax-Element-1">y=2x</script>. We'll use the same model file, and we will:</p><ul><li>Create a simple inference API using FastAPI</li><li>Containerize the API using Docker</li><li>Deploy the containerized application using Kubernetes</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-33.png" class="kg-image" alt="" loading="lazy" width="592" height="201"></figure><h3 id="project-setup">Project setup</h3><p>The code and project setup we are using are attached below as a zip file. You can simply extract it and run&nbsp;<code>uv sync</code>&nbsp;command to get going. It is recommended to follow the instructions in the README file to get started.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-36.png" class="kg-image" alt="" loading="lazy" width="343" height="368"></figure><p>Download the zip file below:</p><!--members-only--><div class="kg-card kg-file-card"><a class="kg-file-card-container" href="https://www.dailydoseofds.com/content/files/2025/10/Kubernetes-example-2.zip" title="Download" download=""><div class="kg-file-card-contents"><div class="kg-file-card-title">Kubernetes-example</div><div class="kg-file-card-caption"></div><div class="kg-file-card-metadata"><div class="kg-file-card-filename">Kubernetes-example.zip</div><div class="kg-file-card-filesize">30 KB</div></div></div><div class="kg-file-card-icon"><svg viewBox="0 0 24 24"><defs><style>.a{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}</style></defs><title>download-circle</title><polyline class="a" points="8.25 14.25 12 18 15.75 14.25"></polyline><line class="a" x1="12" y1="6.75" x2="12" y2="18"></line><circle class="a" cx="12" cy="12" r="11.25"></circle></svg></div></a></div><p>For details about the dependencies, you can check the <code>pyproject.toml</code> or <code>requirements.txt</code> file.</p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">It is recommended to follow the explanation ahead, side-by-side with the above attached project for a more comprehensive understanding.</div></div><h4 id="local-setup-kind">Local setup (kind)</h4><p>We use Kind (Kubernetes in Docker) to use Kubernetes locally on our machine, given its suitability for resource-constrained environments. To set up Kind on your own machine, please follow the attached guide below as per your OS:</p><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="https://kind.sigs.k8s.io/docs/user/quick-start/?ref=dailydoseofds.com#installation"><div class="kg-bookmark-content"><div class="kg-bookmark-title">kind – Quick Start</div><div class="kg-bookmark-description"></div><div class="kg-bookmark-metadata"><img class="kg-bookmark-icon" src="./mlops-crash-course-part-12_files/apple-touch-icon-16.png" alt=""></div></div><div class="kg-bookmark-thumbnail"><img src="./mlops-crash-course-part-12_files/copycode.svg" alt="" onerror="this.style.display = &#39;none&#39;"></div></a></figure><p>Once done, we need to ensure that Docker is running on our machine and then create a cluster (as shown in the guide above):</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-34.png" class="kg-image" alt="" loading="lazy" width="932" height="278" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-34.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-34.png 932w" sizes="(min-width: 720px) 720px"></figure><p>If everything works correctly, you'll have a similar view as shown below:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-35.png" class="kg-image" alt="" loading="lazy" width="1610" height="494" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-35.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-35.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-35.png 1600w, https://www.dailydoseofds.com/content/images/2025/10/image-35.png 1610w" sizes="(min-width: 720px) 720px"></figure><p>Once this is done, go ahead and install <code>kubectl</code>:</p><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="https://kubernetes.io/docs/tasks/tools/?ref=dailydoseofds.com"><div class="kg-bookmark-content"><div class="kg-bookmark-title">Install Tools</div><div class="kg-bookmark-description">Set up Kubernetes tools on your computer.</div><div class="kg-bookmark-metadata"><img class="kg-bookmark-icon" src="./mlops-crash-course-part-12_files/apple-touch-icon-256x256.png" alt=""><span class="kg-bookmark-author">Kubernetes</span></div></div><div class="kg-bookmark-thumbnail"><img src="./mlops-crash-course-part-12_files/kubernetes-open-graph.png" alt="" onerror="this.style.display = &#39;none&#39;"></div></a></figure><p><code>kubectl</code>&nbsp;is the command-line tool for interacting with and controlling Kubernetes clusters.&nbsp;It acts as a client for the Kubernetes API, allowing users to perform various operations on Kubernetes resources.</p><p>With this, we have completed the setup for Kubernetes on our machine. If everything is done correctly, you'd now have Kubernetes set up and running on your system.</p><h3 id="train-and-save-the-model">Train and save the model</h3><p>The project contains a very basic training script (<code>y=2x</code>) that trains a model and saves it:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:575px;position:relative"><div style="width:100%;padding-bottom:116.69565217391305%"></div><iframe width="575" height="671" title="" src="./mlops-crash-course-part-12_files/e4d3a77a-57bd-47ed-bc12-af86b5ec21b3.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">Running this script is optional, since we've already included the model file in the code provided earlier.</div></div><p>This script demonstrates how to train and save a very simple linear regression model using scikit-learn. It first creates some sample training data, where the input features&nbsp;<code>X</code>&nbsp;are numbers from 1 to 5, and the corresponding target values&nbsp;<code>y</code>&nbsp;follow a clear linear relationship (<code>y = 2x</code>).</p><p>The&nbsp;<code>LinearRegression</code>&nbsp;model is then trained on this data using&nbsp;<code>.fit()</code>, learning the coefficient (slope) and intercept of the line. After training, the model is serialized (saved) to disk as&nbsp;<code>model.pkl</code>&nbsp;using&nbsp;<code>joblib.dump</code>, so it can be reloaded later without retraining.</p><h3 id="create-a-fastapi-app-for-inference">Create a FastAPI app for inference</h3><p>We’ll write an application that loads&nbsp;<code>model.pkl</code>&nbsp;at startup and exposes a&nbsp;<code>/predict</code>&nbsp;endpoint.</p><p>The endpoint will accept feature inputs (x) and return the predicted value.</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:579px;position:relative"><div style="width:100%;padding-bottom:134.02417962003454%"></div><iframe width="579" height="776" title="" src="./mlops-crash-course-part-12_files/3ab43bfc-1479-4a30-9ce9-57cbac4064e3.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>A few notes on this code:</p><ul><li>We define an&nbsp;<code>InputData</code>&nbsp;Pydantic model to validate incoming JSON. This means the request should send a JSON with a specified key (<code>x</code>), which will be automatically parsed to that model.</li><li>We load the model outside the endpoint functions, so it loads once when the app starts (this avoids re-loading on every request, which would be slow).</li><li>We provide a simple&nbsp;<code>/health</code>&nbsp;GET endpoint.</li><li>The&nbsp;<code>/predict</code>&nbsp;endpoint takes the feature, runs&nbsp;<code>model.predict</code>, then returns the predicted output.</li></ul><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-2.png" class="kg-image" alt="" loading="lazy" width="1428" height="564" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/08/image-2.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/08/image-2.png 1000w, https://www.dailydoseofds.com/content/images/2025/08/image-2.png 1428w" sizes="(min-width: 720px) 720px"></figure><h3 id="testing-the-api">Testing the API</h3><p>To test the API, we can define a simple script:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:588px;position:relative"><div style="width:100%;padding-bottom:64.96598639455783%"></div><iframe width="588" height="382" title="" src="./mlops-crash-course-part-12_files/d8f30292-fc11-4bcc-86f9-1b0a852c6e2d.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>We first run our app with Uvicorn using: <code>uvicorn app:app --port 8000</code> and then, on running the above test script, in a separate terminal, we get something like the following:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-37.png" class="kg-image" alt="" loading="lazy" width="709" height="69" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-37.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-37.png 709w"></figure><p>This indicates our model output and the time it took, given the inputs.</p><p>FastAPI also provides a browsable documentation UI at <code>http://localhost:8000/docs</code> where you can interact with the API.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-38.png" class="kg-image" alt="" loading="lazy" width="1919" height="833" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-38.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-38.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-38.png 1600w, https://www.dailydoseofds.com/content/images/2025/10/image-38.png 1919w" sizes="(min-width: 720px) 720px"></figure><p>Here we have the endpoints and schema details for our service. In the schemas section, we can check the details of what inputs are being provided, under&nbsp;<code>InputData</code>:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-39.png" class="kg-image" alt="" loading="lazy" width="465" height="300"></figure><p>Now let's see how we can interact with our API via this interface. Select the&nbsp;<code>/health</code>&nbsp;endpoint and click on "Try it out":</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-123-1.png" class="kg-image" alt="" loading="lazy" width="1813" height="606" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/07/image-123-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/07/image-123-1.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/07/image-123-1.png 1600w, https://www.dailydoseofds.com/content/images/2025/07/image-123-1.png 1813w" sizes="(min-width: 720px) 720px"></figure><p>After that, click on the "Execute" button:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-124-1.png" class="kg-image" alt="" loading="lazy" width="1807" height="633" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/07/image-124-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/07/image-124-1.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/07/image-124-1.png 1600w, https://www.dailydoseofds.com/content/images/2025/07/image-124-1.png 1807w" sizes="(min-width: 720px) 720px"></figure><p>Once you follow the above sequence, you'll observe a view similar to the one shown below:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-125-1.png" class="kg-image" alt="" loading="lazy" width="1760" height="321" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-125-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-125-1.png 1000w, https://www.dailydoseofds.com/content/images/size/w1600/2025/10/image-125-1.png 1600w, https://www.dailydoseofds.com/content/images/2025/10/image-125-1.png 1760w" sizes="(min-width: 720px) 720px"></figure><p>Similarly, we can test out our&nbsp;<code>/predict</code>&nbsp;endpoint.</p><p>Input values:&nbsp;<code>{"x": 25}</code></p><p>Here is what we get if we use the above value:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-40.png" class="kg-image" alt="" loading="lazy" width="838" height="333" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-40.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-40.png 838w" sizes="(min-width: 720px) 720px"></figure><p>Now, to take things a step further, we can containerize our setup with a Dockerfile.</p><h3 id="containerization">Containerization</h3><p>Before we can use Kubernetes, we need to containerize our model and code setup:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:669px;position:relative"><div style="width:100%;padding-bottom:39.760837070254105%"></div><iframe width="669" height="266" title="" src="./mlops-crash-course-part-12_files/9ca0bb5b-7c7a-4175-8907-1bfe0657e9e8.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>Here in the Dockerfile:</p><ul><li>Line 1: Using a minimal Python 3.12 base image.</li><li>Line 2: Sets the working directory inside the container to&nbsp;<code>/app</code>.</li><li>Line 3: Copies the application code (<code>app.py</code>), model file (<code>.pkl</code>), and dependencies list (<code>requirements.txt</code>) into the container.</li><li>Line 4: Installs Python packages listed in&nbsp;<code>requirements.txt</code>.</li><li>Line 5: Documents that the app will listen to on port 80 inside the container.</li><li>Line 6: Launches the FastAPI app using Uvicorn on all interfaces at port 80, internally.</li></ul><p>Next, we can build the image with the following command:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:579px;position:relative"><div style="width:100%;padding-bottom:29.18825561312608%"></div><iframe width="579" height="169" title="" src="./mlops-crash-course-part-12_files/881da920-ecc5-4ffa-bcc2-f1cd49bd35d7.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">For the above command to work, make sure you have Docker set up and running on your machine.</div></div><p>Now that we have our image built, we can go ahead with the Kubernetes part.</p><h3 id="orchestration-and-deployment-with-kubernetes">Orchestration and deployment with Kubernetes</h3><p>Since our image has been built, we can go ahead and load the image to the kind cluster.</p><p>In order to load the image to the kind cluster, we must run the following command:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:579px;position:relative"><div style="width:100%;padding-bottom:29.18825561312608%"></div><iframe width="579" height="169" title="" src="./mlops-crash-course-part-12_files/8fa88257-27dc-45e8-adb2-396e3b87918e.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>Note that the <code>--name kind</code> specifies the name of the cluster to load the image to. In our case, it is the default name cluster: <code>kind</code>.</p><div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">👉</div><div class="kg-callout-text">Note: Instead of loading to the cluster we can also push the image to Docker Hub and then access it from there.</div></div><p>Next, we create the <code>deployment.yaml</code> file:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:669px;position:relative"><div style="width:100%;padding-bottom:83.10911808669655%"></div><iframe width="669" height="556" title="" src="./mlops-crash-course-part-12_files/62143864-9974-4bed-ba2d-031f968e6c85.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>This YAML file defines a Kubernetes Deployment (<code>kind: Deployment</code>), a higher-level object that manages a group of identical Pods, ensuring they are running and self-healing if one fails.</p><ul><li>Metadata section:<ul><li>name: The name of the Deployment object in the cluster: <code>k-demo-dep</code>.</li><li>It’s how Kubernetes identifies this Deployment.</li></ul></li><li>Spec section (deployment specification):<ul><li>replicas: Defines how many Pod instances you want running at any given time. Here, we want 2 Pods of the same app running.</li><li>This provides high availability. If one Pod dies, another one continues to serve traffic.</li></ul></li><li>Selector:<ul><li><code>selector.matchLabels</code>: Tells the Deployment which Pods it “owns” or manages.</li><li>It matches Pods with the label <code>app: k-demo</code>.</li><li>Only Pods that have this label in their metadata will be controlled by this Deployment.</li></ul></li><li>Template section:<ul><li>This defines the Pod template, i.e., what each Pod looks like.</li><li>Each Pod created from this template will have the label <code>app: k-demo</code>, ensuring it matches the selector above.</li></ul></li><li>Container specification:<ul><li>containers: A Pod can have one or more containers. Here we define one named <code>k-demo</code>.</li><li>name: The name of the container: <code>k-demo</code>.</li><li>image: The Docker image to use. <code>k-demo</code> means it will look for an image named <code>k-demo</code> locally (if not on a registry like Docker Hub or a private repo).</li><li><code>imagePullPolicy</code>: <code>IfNotPresent</code>. Use the local image if available; don’t try to pull from a remote registry every time.</li><li><code>ports.containerPort</code>: 80. The container exposes port <code>80</code>. Typically the HTTP port. Kubernetes uses this to map traffic from a Service to the right container port.</li></ul></li></ul><p>In Summary, this Deployment ensures:</p><ul><li>2 replicas (Pods) of your app <code>k-demo</code> are always running.</li><li>Each Pod runs a container from the local <code>k-demo</code> image, exposing port 80.</li><li>If one Pod fails, Kubernetes automatically replaces it.</li><li>The label <code>app: k-demo</code> ties Pods and the Deployment together.</li></ul><p>Next, we run the following command to apply the described configurations:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:579px;position:relative"><div style="width:100%;padding-bottom:29.18825561312608%"></div><iframe width="579" height="169" title="" src="./mlops-crash-course-part-12_files/4de198f1-e470-4d13-a57b-3fc7c601fa58.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>After running this command and waiting for a few seconds, we can go ahead and run <code>kubectl get deployment k-demo-dep</code> command. This will tell us the status of our deployment:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-41.png" class="kg-image" alt="" loading="lazy" width="709" height="85" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-41.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-41.png 709w"></figure><p>2/2 under READY means both desired replicas are up, running, and have passed their readiness probes.</p><p>Going ahead further, let's take a look at the <code>service.yaml</code> file:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:669px;position:relative"><div style="width:100%;padding-bottom:58.29596412556054%"></div><iframe width="669" height="390" title="" src="./mlops-crash-course-part-12_files/ff6bb6f9-4858-4d08-bdaa-a4730f8993d1.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>This YAML file defines a Kubernetes Service (<code>kind: Service</code>), a networking abstraction that provides a stable IP address and DNS name for accessing a group of Pods, automatically load-balancing traffic among them.</p><ul><li>metadata:<ul><li>Contains identifying information about the Service.</li><li><code>name: k-demo</code> is the Service’s name in the cluster (can be used as DNS name inside cluster, e.g., <code>http://k-demo</code>).</li></ul></li><li>spec (specification):<ul><li>Defines the Service’s configuration. Basically, which Pods it routes traffic to, and how it exposes them.</li><li>selector matches Pods with the label <code>app: k-demo</code>. This tells the Service: “send traffic only to Pods with this label.”</li></ul></li><ul><li>Works together with our Deployment’s Pod labels.</li></ul><li>ports:<ul><li>name: <code>http</code>. Optional label for this port (useful for multiple ports).</li><li>port: <code>80</code>. Port exposed by the Service (clients connect here).</li><li><code>targetPort</code>: <code>80</code>. Port inside the container where the actual app listens.</li><li>The Service forwards traffic from <code>Service:80</code> → <code>Pod:80</code>.</li></ul></li><li>type:<ul><li>Defines how the Service is exposed.<ul><li><code>ClusterIP</code> → default; accessible only inside the cluster (e.g., by other Pods).</li><li><code>NodePort</code> → exposes it on each Node’s IP at a fixed port.</li><li><code>LoadBalancer</code> → creates a cloud load balancer for external access.</li></ul></li><li>Since we used <code>ClusterIP</code>, only in-cluster components (like another Pod) can access this service.</li></ul></li></ul><p>In summary:</p><ul><li>The Service <code>k-demo</code> exposes port 80 internally.</li><li>It routes traffic to all Pods labeled <code>app: k-demo</code>.</li><li>It load-balances requests across those Pods.</li><li>It is internal-only (<code>ClusterIP</code>).</li></ul><hr><p><strong>Note:</strong></p><ul><li>Every Service in Kubernetes automatically performs load balancing across all the Pods that match its selector.</li><li>When multiple Pods have the same label (for example, <code>app: k-demo</code>), the Service routes each new connection to one of them.</li><li>The traffic is distributed. So even with <code>type: ClusterIP</code>, requests from inside the cluster will be shared among all the Pods.</li></ul><hr><p>Similar to earlier, we run the following command to apply the described Service configurations:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:579px;position:relative"><div style="width:100%;padding-bottom:29.18825561312608%"></div><iframe width="579" height="169" title="" src="./mlops-crash-course-part-12_files/588fc7aa-b735-4dd6-bf25-c86384202ac2.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>After running this command, we can go ahead and run <code>kubectl logs -l app=k-demo</code> command. This will display the logs of our pods:</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-42-1.png" class="kg-image" alt="" loading="lazy" width="662" height="213" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-42-1.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-42-1.png 662w"></figure><p>The two colored boundaries tell that there are logs of both replicas. Below is a more explicit version, showing the container name too for better clarity:</p><figure class="kg-card kg-image-card kg-card-hascaption"><img src="./mlops-crash-course-part-12_files/image-43-1.png" class="kg-image" alt="" loading="lazy" width="1027" height="208" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-43-1.png 600w, https://www.dailydoseofds.com/content/images/size/w1000/2025/10/image-43-1.png 1000w, https://www.dailydoseofds.com/content/images/2025/10/image-43-1.png 1027w" sizes="(min-width: 720px) 720px"><figcaption><span style="white-space: pre-wrap;">command: kubectl logs -l app=k-demo -f --prefix</span></figcaption></figure><hr><p>At this point, we'd like to make an important point:</p><p>In Kubernetes, the&nbsp;<code>apiVersion</code>&nbsp;field in a resource definition (YAML file) specifies the version of the Kubernetes API that the resource adheres to.&nbsp;It is a crucial component that ensures compatibility between your resource definition and the Kubernetes cluster.</p><p>Stability Levels:&nbsp;Kubernetes API versions are categorized into three stability levels:</p><ul><li>Alpha (e.g.,&nbsp;<code>v1alpha1</code>):&nbsp;Experimental features, subject to change and potential bugs.</li><li>Beta (e.g.,&nbsp;<code>v1beta1</code>):&nbsp;More stable than alpha, but still subject to potential changes in future releases.</li><li>Stable (e.g.,&nbsp;<code>v1</code>,&nbsp;<code>apps/v1</code>):&nbsp;Fully supported and considered stable, with minimal risk of breaking changes.</li></ul><p>Structure of&nbsp;<code>apiVersion</code>:</p><p>The&nbsp;<code>apiVersion</code>&nbsp;typically follows a pattern like&nbsp;<code>group/version</code>&nbsp;or simply&nbsp;<code>version</code>&nbsp;for core API objects.</p><ul><li>Core API:&nbsp;For core Kubernetes objects like Pods and Services, the&nbsp;<code>apiVersion</code>&nbsp;is often&nbsp;<code>v1</code>.</li><li>API Groups:&nbsp;For objects belonging to specific API groups (e.g., Deployments and ReplicaSets within the&nbsp;<code>apps</code>&nbsp;group), the&nbsp;<code>apiVersion</code>&nbsp;includes the group name (<code>apps/v1</code>).</li></ul><hr><p>Now, since the Service is of type <code>ClusterIP</code> and is accessible only within the cluster, we need to forward the port to our local machine in order to access it externally:</p>
+<!--kg-card-begin: html-->
+<div style="overflow:hidden;margin-left:auto;margin-right:auto;border-radius:10px;width:100%;max-width:579px;position:relative"><div style="width:100%;padding-bottom:29.18825561312608%"></div><iframe width="579" height="169" title="" src="./mlops-crash-course-part-12_files/d425f7db-6761-4496-bc5a-ecc58af98f8f.html" allow="clipboard-write" allowfullscreen="" loading="lazy" style="background:linear-gradient(337deg,#654EA3FF,#DA98B4FF);position:absolute;left:0;top:0;width:100%" frameborder="0"></iframe></div>
+<!--kg-card-end: html-->
+<p></p><p>This command creates a temporary tunnel from our local machine to a Kubernetes resource (here, Service).</p><ul><li><code>service/k-demo</code> is the target resource we’re forwarding to.</li><li><code>8000:80</code> → The port mapping:<ul><li>Left (8000) → Local machine port.</li><li>Right (80) → Target port inside the cluster (the Service’s port).</li></ul></li></ul><p>So, any traffic you send to <code>http://localhost:8000</code> will be forwarded to <code>http://k-demo:80</code> (inside the cluster).</p><p>Now we can run our <code>test.py</code> file and test our API service.</p><figure class="kg-card kg-image-card"><img src="./mlops-crash-course-part-12_files/image-45.png" class="kg-image" alt="" loading="lazy" width="709" height="69" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-45.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-45.png 709w"></figure><p>With this we complete our walkthrough. To summarize, a usual simplified exercise is:</p><ul><li>Package a container.</li><li>Write a Deployment YAML.</li><li>Write a Service YAML to expose it internally (<code>ClusterIP</code>) or externally (<code>NodePort</code>/<code>LoadBalancer</code>).</li><li><code>kubectl apply -f deployment.yaml</code> and <code>kubectl apply -f service.yaml</code>.</li><li>Use <code>kubectl get pods</code>, <code>kubectl describe</code>, etc.</li><li>Upgrade, if needed: change the image tag, reapply, observe rolling update, etc.</li></ul><p>Through this hands-on journey, we simulated turning a trained model into an API endpoint as a microservice.</p><p>This is a highly simplified version of what happens in industry: data scientists often start in notebooks/training scripts, but engineers or ML engineers will take the trained model and wrap it in an application.</p><p>At this stage we'd like to clarify that this chapter covers the basics of Kubernetes. These concepts are merely the tip of the iceberg.</p><p>This discussion on Kubernetes was mostly to get you familiar and known to what it exactly is. Kubernetes in itself is a topic that could take tens to hundreds of learning hours; hence, we recommend that from here you proceed with your journey with the following study materials:</p><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="https://spacelift.io/blog/kubernetes-tutorial?ref=dailydoseofds.com"><div class="kg-bookmark-content"><div class="kg-bookmark-title">Kubernetes Tutorial for Beginners: Basic Concepts</div><div class="kg-bookmark-description">In this getting started with Kubernetes tutorial for beginners, you’ll learn what Kubernetes can do and how to run your own containerized solutions.</div><div class="kg-bookmark-metadata"><img class="kg-bookmark-icon" src="./mlops-crash-course-part-12_files/apple-touch-icon-17.png" alt=""><span class="kg-bookmark-author">Spacelift</span><span class="kg-bookmark-publisher">James Walker</span></div></div><div class="kg-bookmark-thumbnail"><img src="./mlops-crash-course-part-12_files/kubernetes-tutorial.png" alt="" onerror="this.style.display = &#39;none&#39;"></div></a></figure><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="https://kubernetes.io/docs/home/?ref=dailydoseofds.com"><div class="kg-bookmark-content"><div class="kg-bookmark-title">Kubernetes Documentation</div><div class="kg-bookmark-description">Kubernetes is an open source container orchestration engine for automating deployment, scaling, and management of containerized applications. The open source project is hosted by the Cloud Native Computing Foundation.</div><div class="kg-bookmark-metadata"><img class="kg-bookmark-icon" src="./mlops-crash-course-part-12_files/apple-touch-icon-256x256-1.png" alt=""><span class="kg-bookmark-author">Kubernetes</span></div></div><div class="kg-bookmark-thumbnail"><img src="./mlops-crash-course-part-12_files/kubernetes-open-graph-1.png" alt="" onerror="this.style.display = &#39;none&#39;"></div></a></figure><figure class="kg-card kg-bookmark-card"><a class="kg-bookmark-container" href="https://kubernetes.io/docs/reference/kubectl/quick-reference/?ref=dailydoseofds.com"><div class="kg-bookmark-content"><div class="kg-bookmark-title">kubectl Quick Reference</div><div class="kg-bookmark-description">This page contains a list of commonly used kubectl commands and flags.
+Note:These instructions are for Kubernetes v1.34. To check the version, use the kubectl version command. Kubectl autocomplete BASH source &lt;(kubectl completion bash) # set up autocomplete in bash into the current shell, bash-completion package should be installed first. echo “source &lt;(kubectl completion bash)” &gt;&gt; ~/.bashrc # add autocomplete permanently to your bash shell. You can also use a shorthand alias for kubectl that also works with completion:</div><div class="kg-bookmark-metadata"><img class="kg-bookmark-icon" src="./mlops-crash-course-part-12_files/apple-touch-icon-256x256-2.png" alt=""><span class="kg-bookmark-author">Kubernetes</span></div></div><div class="kg-bookmark-thumbnail"><img src="./mlops-crash-course-part-12_files/kubernetes-open-graph-2.png" alt="" onerror="this.style.display = &#39;none&#39;"></div></a></figure><hr><h2 id="conclusion">Conclusion</h2><p>In this chapter, we've continued with our journey of understanding model deployment in MLOps, blending theory with hands-on demos.</p><p>We focused solely on understanding Kubernetes in this chapter.</p><p>We started off by exploring the background concepts needed for understanding Kubernetes better.</p><p>Then we moved ahead and explored the architectural beauty of Kubernetes and the standard terminologies and definitions.</p><p>Finally we explored Kubernetes hands-on, understanding how it helps us manage containers optimally.</p><p>Key takeaways:</p><ul><li>Kubernetes is a container orchestration system that automates deployment, scaling, healing, and networking of containerized applications.</li><li>Its core architecture is a control plane + worker nodes structure.</li><li>It works by reconciling desired state (YAML definitions) with actual state continuously.</li><li>While Kubernetes has a learning curve and operational overhead, its advantages make it a standard in modern production systems, especially for ML systems that need reliable, scalable deployment.</li></ul><p>In the next part, we’ll delve into a few more advanced concepts related to the deployment phase itself.</p><p>After the deployment phase, we’ll continue our journey further with:</p><ul><li>CI/CD workflows</li><li>Real-world case studies from industry</li><li>Special considerations for LLMOps</li></ul><p>The aim, as always, is to help you cultivate a mature, system-centric mindset, one that treats machine learning not as a standalone artifact but as a living part of a broader software ecosystem.</p><p>As always, thanks for reading!</p><p>Any questions?</p><p>Feel free to post them in the comments.</p><p>Or</p><p>If you wish to connect privately, feel free to initiate a chat here:</p><figure class="kg-card kg-image-card kg-card-hascaption"><img src="./mlops-crash-course-part-12_files/image-44.png" class="kg-image" alt="" loading="lazy" width="976" height="225" srcset="https://www.dailydoseofds.com/content/images/size/w600/2025/10/image-44.png 600w, https://www.dailydoseofds.com/content/images/2025/10/image-44.png 976w" sizes="(min-width: 720px) 720px"><figcaption><span style="white-space: pre-wrap;">Connect via chat</span></figcaption></figure>
+    </article>
+
+            <div class="post-tags content-width mb-lg">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+        <a class="post-tag tag-mlops" href="https://www.dailydoseofds.com/tag/mlops/" aria-label="MLOps">MLOps</a>
+        <a class="post-tag tag-deployment" href="https://www.dailydoseofds.com/tag/deployment/" aria-label="Deployment">Deployment</a>
+    </div>
+
+        <hr class="content-width mb-lg">
+
+        <div class="social-share content-width ">
+  <span class="social-share-title">Share this article</span>
+  <a class="social-share__item twitter js-share" target="_blank" href="https://twitter.com/share?text=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20B&amp;url=https://www.dailydoseofds.com/mlops-crash-course-part-12/" title="Share on Twitter" aria-label="Share on Twitter">
+    <i class="icon icon-twitter icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z"></path>
+</svg>
+
+
+
+</i>    <span>Tweet</span>
+  </a>
+  <a class="social-share__item facebook js-share" target="_blank" href="https://www.facebook.com/sharer.php?u=https://www.dailydoseofds.com/mlops-crash-course-part-12/" title="Share on Facebook" aria-label="Share on Facebook">
+    <i class="icon icon-facebook icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-facebook" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"></path>
+</svg>
+
+
+
+</i>    <span>Share</span>
+  </a>
+  <a class="social-share__item linkedin js-share" target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.dailydoseofds.com/mlops-crash-course-part-12/&amp;title=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20B&amp;summary=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20B" title="Share on Linkedin" aria-label="Share on Linkedin">
+    <i class="icon icon-linkedin icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin">
+  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+  <rect x="2" y="9" width="4" height="12"></rect>
+  <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</i>    <span>Share</span>
+  </a>
+  <a class="social-share__item mail" href="mailto:?subject=The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20B&amp;body=https://www.dailydoseofds.com/mlops-crash-course-part-12/%C2%A0The%20Full%20MLOps%20Blueprint%3A%20Model%20Deployment%E2%80%94Part%20B" title="Share by email" aria-label="Share by email">
+    <i class="icon icon-mail icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-mail" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+  <polyline points="3 7 12 13 21 7"></polyline>
+</svg>
+</i>    <span>Email</span>
+  </a>
+  <button class="copy-link copy js-copy-link" data-url="https://www.dailydoseofds.com/mlops-crash-course-part-12/" title="Copy to clipboard" data-label="Copied!" aria-label="Copy to clipboard">
+    <i class="icon icon-link icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+   <path d="M9 15l6 -6"></path>
+   <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path>
+   <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path>
+</svg>
+</i>    <span>Copy</span>
+  </button>
+</div>
+
+  </div>
+
+    
+      <div class="bg-acc mb-xl comment-section">
+        <div class="container wrapper">
+          <div class="post-comments radius-double p-lg pb-0 flex-1 self-align-start" id="comments">
+            <div class="content-width">
+              
+        <div id="ghost-comments-root"><iframe innerref="[object Object]" frameborder="0" title="comments-frame" style="width: 100%; height: 152px;" src="./mlops-crash-course-part-12_files/saved_resource.html"></iframe></div><script defer="" src="./mlops-crash-course-part-12_files/comments-ui.min.js" data-locale="en" data-ghost-comments="https://www.dailydoseofds.com/" data-api="https://daily-dose-of-data-science.ghost.io/ghost/api/content/" data-admin="https://daily-dose-of-data-science.ghost.io/ghost/" data-key="933dba8c65eaaa9a2f6c0be670" data-title="Comments" data-count="true" data-post-id="68e49ef89ef63e000124d865" data-color-scheme="auto" data-avatar-saturation="60" data-accent-color="#54b6f2" data-comments-enabled="all" data-publication="Daily Dose of Data Science" crossorigin="anonymous"></script>
+    
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <section class="read-next pt-xl pb-lg">
+      <div class="container wrapper">
+        <h2 class="section-title">Read next</h2>
+        <div class="post-feed mb-lg" data-feed="list">
+
+              <article class="post-card has-img js-post-card" data-date="Oct 19, 2025" data-aspect-ratio="auto">
+  
+<a class="post-card__media" href="https://www.dailydoseofds.com/mlops-crash-course-part-13/">      <figure>
+        <picture class="">
+  <source sizes="280px" data-sizes="auto" srcset="/content/images/size/w30/2025/10/Sanyog-MLOps_-_I-1.png 30w" data-srcset="/content/images/size/w300/format/webp/2025/10/Sanyog-MLOps_-_I-1.png 300w, /content/images/size/w600/format/webp/2025/10/Sanyog-MLOps_-_I-1.png 600w, /content/images/size/w1000/format/webp/2025/10/Sanyog-MLOps_-_I-1.png 1000w" type="image/webp">
+  <img class="lazyload" sizes="280px" data-sizes="auto" data-srcset="/content/images/size/w300/2025/10/Sanyog-MLOps_-_I-1.png 300w, /content/images/size/w600/2025/10/Sanyog-MLOps_-_I-1.png 600w, /content/images/size/w1000/2025/10/Sanyog-MLOps_-_I-1.png 1000w" srcset="/content/images/size/w30/2025/10/Sanyog-MLOps_-_I-1.png 30w" data-src="/content/images/size/w100/2025/10/Sanyog-MLOps_-_I-1.png" src="./mlops-crash-course-part-12_files/Sanyog-MLOps_-_I-1.png" alt="The Full MLOps Blueprint: Model Deployment—Part C">
+</picture>      </figure>
+</a>
+  <div class="post-card__content flex flex-col ">
+    <div class="post-card__info">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+
+      <time class="post-card__date" datetime="2025-10-19">Oct 19, 2025</time> 
+
+        <span class="m-l-sm m-r-sm">•</span>
+        <span class="post-card__date">30 min read</span>
+
+      
+      <span class="flex-1"></span>
+
+        <span class="post-card__visibility has-access" data-tooltip="paid" tabindex="0">
+          <i class="icon icon-lock-open icon--14">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock-open" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+  <circle cx="12" cy="16" r="1"></circle>
+  <path d="M8 11v-5a4 4 0 0 1 8 0"></path>
+</svg>
+
+
+
+</i>
+        </span>
+
+    </div>
+
+      <h2 class="post-card__title"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-13/">The Full MLOps Blueprint: Model Deployment—Part C</a></h2>
+
+    <p class="post-card__excerpt">MLOps and LLMOps Crash Course—Part 13.</p>
+
+    <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-12_files/avi-google(1).jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-12_files/38653995(1).png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</article>            
+
+              <article class="post-card has-img js-post-card" data-date="Oct 5, 2025" data-aspect-ratio="auto">
+  
+<a class="post-card__media" href="https://www.dailydoseofds.com/mlops-crash-course-part-11/">      <figure>
+        <picture class="">
+  <source sizes="280px" data-sizes="auto" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-3.png 30w" data-srcset="/content/images/size/w300/format/webp/2025/09/Sanyog-MLOps_-_I-3.png 300w, /content/images/size/w600/format/webp/2025/09/Sanyog-MLOps_-_I-3.png 600w, /content/images/size/w1000/format/webp/2025/09/Sanyog-MLOps_-_I-3.png 1000w" type="image/webp">
+  <img class="lazyload" sizes="280px" data-sizes="auto" data-srcset="/content/images/size/w300/2025/09/Sanyog-MLOps_-_I-3.png 300w, /content/images/size/w600/2025/09/Sanyog-MLOps_-_I-3.png 600w, /content/images/size/w1000/2025/09/Sanyog-MLOps_-_I-3.png 1000w" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-3.png 30w" data-src="/content/images/size/w100/2025/09/Sanyog-MLOps_-_I-3.png" src="./mlops-crash-course-part-12_files/Sanyog-MLOps_-_I-3.png" alt="The Full MLOps Blueprint: Model Deployment—Part A">
+</picture>      </figure>
+</a>
+  <div class="post-card__content flex flex-col ">
+    <div class="post-card__info">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+
+      <time class="post-card__date" datetime="2025-10-05">Oct 5, 2025</time> 
+
+        <span class="m-l-sm m-r-sm">•</span>
+        <span class="post-card__date">21 min read</span>
+
+      
+      <span class="flex-1"></span>
+
+        <span class="post-card__visibility has-access" data-tooltip="paid" tabindex="0">
+          <i class="icon icon-lock-open icon--14">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock-open" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+  <circle cx="12" cy="16" r="1"></circle>
+  <path d="M8 11v-5a4 4 0 0 1 8 0"></path>
+</svg>
+
+
+
+</i>
+        </span>
+
+    </div>
+
+      <h2 class="post-card__title"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-11/">The Full MLOps Blueprint: Model Deployment—Part A</a></h2>
+
+    <p class="post-card__excerpt">MLOps and LLMOps Crash Course—Part 11.</p>
+
+    <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-12_files/avi-google(1).jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-12_files/38653995(1).png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</article>            
+
+              <article class="post-card has-img js-post-card" data-date="Sep 28, 2025" data-aspect-ratio="auto">
+  
+<a class="post-card__media" href="https://www.dailydoseofds.com/mlops-crash-course-part-10/">      <figure>
+        <picture class="">
+  <source sizes="280px" data-sizes="auto" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-2.png 30w" data-srcset="/content/images/size/w300/format/webp/2025/09/Sanyog-MLOps_-_I-2.png 300w, /content/images/size/w600/format/webp/2025/09/Sanyog-MLOps_-_I-2.png 600w, /content/images/size/w1000/format/webp/2025/09/Sanyog-MLOps_-_I-2.png 1000w" type="image/webp">
+  <img class="lazyload" sizes="280px" data-sizes="auto" data-srcset="/content/images/size/w300/2025/09/Sanyog-MLOps_-_I-2.png 300w, /content/images/size/w600/2025/09/Sanyog-MLOps_-_I-2.png 600w, /content/images/size/w1000/2025/09/Sanyog-MLOps_-_I-2.png 1000w" srcset="/content/images/size/w30/2025/09/Sanyog-MLOps_-_I-2.png 30w" data-src="/content/images/size/w100/2025/09/Sanyog-MLOps_-_I-2.png" src="./mlops-crash-course-part-12_files/Sanyog-MLOps_-_I-2.png" alt="The Full MLOps Blueprint: Model Development and Optimization—Part C">
+</picture>      </figure>
+</a>
+  <div class="post-card__content flex flex-col ">
+    <div class="post-card__info">
+        <a class="post-tag tag-mlops-crash-course-2" href="https://www.dailydoseofds.com/tag/mlops-crash-course-2/" aria-label="MLOps Crash Course">MLOps Crash Course</a>
+
+      <time class="post-card__date" datetime="2025-09-28">Sep 28, 2025</time> 
+
+        <span class="m-l-sm m-r-sm">•</span>
+        <span class="post-card__date">22 min read</span>
+
+      
+      <span class="flex-1"></span>
+
+        <span class="post-card__visibility has-access" data-tooltip="paid" tabindex="0">
+          <i class="icon icon-lock-open icon--14">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock-open" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+  <circle cx="12" cy="16" r="1"></circle>
+  <path d="M8 11v-5a4 4 0 0 1 8 0"></path>
+</svg>
+
+
+
+</i>
+        </span>
+
+    </div>
+
+      <h2 class="post-card__title"><a href="https://www.dailydoseofds.com/mlops-crash-course-part-10/">The Full MLOps Blueprint: Model Development and Optimization—Part C</a></h2>
+
+    <p class="post-card__excerpt">MLOps and LLMOps Crash Course—Part 10.</p>
+
+    <div class="post-authors">
+  <ul class="post-authors__avatars">
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/avi/" title="Avi Chawla" aria-label="Avi Chawla">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-srcset="/content/images/size/w30/format/webp/2024/12/avi-google.jpg 30w, /content/images/size/w100/format/webp/2024/12/avi-google.jpg 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w, /content/images/size/w100/2024/12/avi-google.jpg 100w" srcset="/content/images/size/w30/2024/12/avi-google.jpg 30w" data-src="/content/images/size/w100/2024/12/avi-google.jpg" src="./mlops-crash-course-part-12_files/avi-google(1).jpg" alt="Avi Chawla">
+</picture>          </a>
+        </li>
+        <li class="author-avatar has-image">
+          <a href="https://www.dailydoseofds.com/author/akshay/" title="Akshay Pachaar" aria-label="Akshay Pachaar">
+              <picture class="">
+  <source sizes="60px" data-sizes="auto" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-srcset="/content/images/size/w30/format/webp/2024/11/38653995.png 30w, /content/images/size/w100/format/webp/2024/11/38653995.png 100w" type="image/webp">
+  <img class="lazyload" sizes="60px" data-sizes="auto" data-srcset="/content/images/size/w30/2024/11/38653995.png 30w, /content/images/size/w100/2024/11/38653995.png 100w" srcset="/content/images/size/w30/2024/11/38653995.png 30w" data-src="/content/images/size/w100/2024/11/38653995.png" src="./mlops-crash-course-part-12_files/38653995(1).png" alt="Akshay Pachaar">
+</picture>          </a>
+        </li>
+  </ul>
+  
+    <span class="post-authors-names"><a href="https://www.dailydoseofds.com/author/avi/">Avi Chawla</a>, <a href="https://www.dailydoseofds.com/author/akshay/">Akshay Pachaar</a></span>
+</div>  </div>
+
+</article>            
+      </div>
+        
+      </div>
+    </section>
+
+
+
+
+
+<!--
+  <div class="related-posts mb-lg">
+        </div>
+
+-->
+    </main>
+
+      
+    <footer class="footer">
+  <div class="container wrapper">
+    <span class="footer-top"></span>
+    <div class="row">
+      <div class="col-xs-12 col-md-5">
+        <div class="footer__brand flex items-center">
+            <picture class="default-logo">
+  <source sizes="200px" data-sizes="auto" srcset="/content/images/size/w30/2023/06/logo-subsatck2.svg 30w" data-srcset="/content/images/size/w300/format/webp/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/format/webp/2023/06/logo-subsatck2.svg 600w" type="image/webp">
+  <img class="footer__logo mr lazyload" sizes="200px" data-sizes="auto" data-srcset="/content/images/size/w300/2023/06/logo-subsatck2.svg 300w, /content/images/size/w600/2023/06/logo-subsatck2.svg 600w" srcset="/content/images/size/w30/2023/06/logo-subsatck2.svg 30w" data-src="/content/images/size/w100/2023/06/logo-subsatck2.svg" src="./mlops-crash-course-part-12_files/logo-subsatck2.svg" alt="Daily Dose of Data Science">
+</picture>        </div>
+
+        <div class="footer__description" id="footer-input-label">
+          A daily column with insights, observations, tutorials and best practices on python and data science. Read by industry professionals at big tech, startups, and engineering students, across:
+        </div>
+
+        <div class="social-links">
+          
+  <a href="https://x.com/_avichawla" class="twitter" aria-label="Twitter"><i class="icon icon-twitter icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z"></path>
+</svg>
+
+
+
+</i><span>Twitter</span></a>
+
+<a href="https://www.linkedin.com/in/avi-chawla/" class="Linkedin" aria-label="LinkedIn"><i class="icon icon-linkedin icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin">
+  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+  <rect x="2" y="9" width="4" height="12"></rect>
+  <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</i><span>LinkedIn</span></a>
+
+<a href="https://github.com/ChawlaAvi/Daily-Dose-of-Data-Science" class="github" aria-label="Github"><i class="icon icon-github icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <desc>Download more icon variants from https://tabler-icons.io/i/brand-github</desc>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
+</svg>
+
+
+
+</i><span>Github</span></a>
+
+<a href="https://www.dailydoseofds.com/rss" class="rss" aria-label="RSS"><i class="icon icon-rss icon--sm">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <circle cx="5" cy="19" r="1"></circle>
+  <path d="M4 4a16 16 0 0 1 16 16"></path>
+  <path d="M4 11a9 9 0 0 1 9 9"></path>
+</svg>
+
+
+
+</i><span>RSS</span></a>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+
+      <div class="col-xs-12 col-md-7">
+        <span class="fw-700 mb-sm display-block text-12">Navigation</span>
+        <ul class="nav" data-items="8">
+
+
+
+
+        <li class="nav-newsletter" data-label="Newsletter" data-length="10" data-post="">
+          <a href="https://join.dailydoseofds.com/">
+            <span>Newsletter</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-more is-toggle" data-label="More" data-length="4" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#">
+            <span>More</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-contact is-subitem" data-label="- Contact" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/contact/">
+            <span> Contact</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-faqs is-subitem" data-label="- FAQs" data-length="6" data-post="">
+          <a href="https://www.dailydoseofds.com/faq/">
+            <span> FAQs</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-about is-subitem" data-label="- About" data-length="7" data-post="">
+          <a href="https://www.dailydoseofds.com/about/">
+            <span> About</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+        <li class="nav-search" data-label="Search 🔎" data-length="9" data-post="">
+          <a href="https://www.dailydoseofds.com/mlops-crash-course-part-12/#/search/">
+            <span>Search 🔎</span>
+          </a>
+        </li>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+        
+          
+
+
+
+
+</ul>
+
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <div class="footer__copy">
+        <span>©2025&nbsp;<a href="https://www.dailydoseofds.com/">Daily Dose of Data Science</a>.</span>
+        <span>All rights reserved.</span>
+      </div>
+
+      </div>
+
+  </div>
+</footer>
+
+    <dialog class="notification">
+  <i class="icon icon-success notification-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <circle cx="12" cy="12" r="9"></circle>
+  <path d="M9 12l2 2l4 -4"></path>
+</svg>
+
+
+
+</i>  <i class="icon icon-error notification-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-octagon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M8.7 3h6.6c.3 0 .5 .1 .7 .3l4.7 4.7c.2 .2 .3 .4 .3 .7v6.6c0 .3 -.1 .5 -.3 .7l-4.7 4.7c-.2 .2 -.4 .3 -.7 .3h-6.6c-.3 0 -.5 -.1 -.7 -.3l-4.7 -4.7c-.2 -.2 -.3 -.4 -.3 -.7v-6.6c0 -.3 .1 -.5 .3 -.7l4.7 -4.7c.2 -.2 .4 -.3 .7 -.3z"></path>
+  <line x1="12" y1="8" x2="12" y2="12"></line>
+  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+</svg>
+
+
+
+</i>  <i class="icon icon-warning notification-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M12 9v2m0 4v.01"></path>
+  <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
+</svg>
+
+
+
+</i>  <p class="notification-msg signup-success">Great! You’ve successfully signed up. Please check your email.</p> 
+  <p class="notification-msg signin-success">Welcome back! You've successfully signed in.</p> 
+  <p class="notification-msg subscribe-success">You've successfully subscribed to Daily Dose of Data Science.</p> 
+  <p class="notification-msg link-expired">Your link has expired.</p> 
+  <p class="notification-msg checkout-success">Success! Check your email for magic link to sign-in.</p> 
+  <p class="notification-msg billing-success">Success! Your billing info has been updated.</p> 
+  <p class="notification-msg billing-cancel">Your billing was not updated.</p> 
+  <button class="notification-close js-notification-close" aria-label="Close" onclick="closeNotification(event.currentTarget.parentNode);">
+    <i class="icon icon-x">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <line x1="18" y1="6" x2="6" y2="18"></line>
+  <line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+</i>  </button>
+</dialog>
+
+      
+    
+
+      <script>
+    document.addEventListener('readystatechange', function(event) {
+      if (document.readyState === "complete") {
+        // table of contents toggle
+        const postToc = document.querySelector('.js-post-toc');
+
+        // media query for TOC function
+        //const mqSmall = window.matchMedia('(max-width: 1200px)');
+        //const mqLarge = window.matchMedia('(min-width: 1280px)');
+
+        if (postToc && !isInViewport('.header') && !isInViewport('.read-next')) 
+          postToc.classList.add('is-active');
+
+        window.addEventListener('scroll', (event) => {
+          if ( isInViewport('.header') || isInViewport('.read-next') || isInViewport('.footer')) {
+            postToc.classList.remove('is-active');
+          } else {
+            postToc.classList.add('is-active');
+          }
+        });
+
+        const headerStyle = document.querySelector('.js-header').getAttribute('data-style');
+        let headerOffset = headerStyle === 'sticky' ? 80 : 20;
+
+        if (postToc) {
+          tocbot.init({
+            // Where to render the table of contents.
+            tocSelector: '.js-toc',
+            // Where to grab the headings to build the table of contents.
+            contentSelector: '.content',
+            // Which headings to grab inside of the contentSelector element.
+            headingSelector: 'h2,h3,h4,h5,h6',
+            // Ignore some headings (like header card and toggle card)
+            ignoreSelector: '[class*="kg-"],[class*="content-cta"],[class*="post-bottom"]',
+            // For headings inside relative or absolute positioned containers within content.
+            hasInnerContainers: false,
+            // smooth scroll
+            scrollSmooth: false,
+            // offset
+            headingsOffset: headerOffset,
+          });
+
+          document.querySelector('.js-toc .toc-list') ? postToc.classList.add('is-rendered') : null;
+        }
+      }
+    });
+
+        // Add this to your site's JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+      const toc = document.querySelector('.post-toc');
+      if (toc) {
+        // Add is-visible class by default on desktop
+        if (window.innerWidth >= 1024) {
+          toc.classList.add('is-visible');
+        }
+      }
+    });
+  </script>
+
+  <script>
+    // Copy button
+    const copyBtn = document.querySelector('.js-copy-link');
+    if (copyBtn) {
+      copyBtn.onclick = function(event) {
+        copyToClipboard(event.currentTarget, event.currentTarget.getAttribute('data-url'));
+      }
+    }
+    
+    /** 
+    * Copy to clipboard
+    * @src - source element
+    * @str - string to copy
+    */ 
+    const copyToClipboard = function(src, str) {
+      const el = document.createElement('textarea');
+      el.value = str;
+      el.setAttribute('readonly', '');
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      src.classList.add('has-tooltip');
+      src.setAttribute('data-label', 'Copied!');
+
+      src.onmouseleave = function() { 
+        src.classList.remove('has-tooltip');
+        setTimeout(function(){
+          src.setAttribute('data-label', '');
+        }, 500); 
+      }
+    };
+  </script>
+
+<script>
+  const navItems = document.querySelectorAll('.header .nav:not(.submenu) li')
+  const allNavItems = document.querySelectorAll('.is-subitem')
+
+  // Remove '-' signs
+  allNavItems.forEach(item => {
+    const itemName = item.querySelector('a span')
+    itemName.innerText = itemName.innerText.slice(1)
+  });
+
+  // Add subitems in place
+  let subMenu, hasItems
+  navItems.forEach((item, index) => {
+    if (item.classList.contains('is-subitem') && !navItems[index - 1].classList.contains('is-subitem')) navItems[index - 1].classList.add('is-mainitem'); 
+    subMenu = item.classList.contains('is-subitem') ? subMenu : document.createElement('ul');
+    if (item.classList.contains('is-subitem')) { 
+      subMenu.appendChild(item)
+      subMenu.classList.add('nav','submenu')
+    } else { 
+      item.appendChild(subMenu)
+    }
+  });
+</script>
+
+  <script>
+    // Give the parameter a variable name
+    const qsParams = new URLSearchParams(window.location.search);
+    const isAction = qsParams.has('action');
+    const isStripe = qsParams.has('stripe');
+    const success = qsParams.get('success');
+    const action = qsParams.get('action');
+    const stripe = qsParams.get('stripe');
+
+    if (qsParams && isAction) {
+      if (success === "true") {
+        switch (action) {
+          case 'subscribe':
+            openNotification('subscribe-success');
+            break;
+          case 'signup': 
+            openNotification('signup-success');
+            break;
+          case 'signin':
+            openNotification('signin-success');
+            break;
+          default:
+            break;
+        }
+      } else {
+        openNotification('link-expired');
+      }
+    }
+
+    if (qsParams && isStripe) {
+      switch (stripe) {
+        case 'success':
+          openNotification('checkout-success');
+          break;
+        case 'billing-update-success':
+          openNotification('billing-success');
+          break;
+        case 'billing-update-cancel':
+          openNotification('billing-cancel');
+          break;
+        default:
+          break;
+      }
+    }
+
+    /**
+    * Handle Notifications
+    */
+    function openNotification(type) {
+      const notification = document.querySelector('dialog.notification');
+      if (notification) { 
+        notification.setAttribute('data-msg-type', type);
+        notification.show();
+        setTimeout(function(){ closeNotification(notification); }, 7000);
+      }
+    }
+    
+    /**
+    * Clean URI
+    */
+    function clearURI() {
+      window.history.replaceState({}, '', `${window.location.pathname}`);
+    }
+
+    function closeNotification(notification) {
+      notification.close();
+      clearURI();
+      setTimeout(function(){ notification.removeAttribute('data-msg-type') }, 500);
+    }
+  </script>
+
+
+    <script>
+  // Check if the current URL contains "membership-"
+if (window.location.href.includes("membership-n1")) {
+  // Use the pushState method to change the URL without triggering a page reload
+  window.history.pushState({}, "", "https://www.dailydoseofds.com/membership");
+}
+  
+</script>
+
+
+
+      
+
+
+
+  
+
+<div id="ghost-portal-root" data-testid="portal-root"></div><div id="sodo-search-root"></div><div class="overlay"></div><div class="crisp-client" aria-live="polite" translate="no" tabindex="-1" lang="en" dir="ltr" style="--crisp-color-theme-10: 240, 242, 245; --crisp-color-theme-20: 242, 247, 248; --crisp-color-theme-100: 220, 237, 246; --crisp-color-theme-200: 102, 120, 138; --crisp-color-theme-500: 68, 121, 145; --crisp-color-theme-600: 60, 113, 137; --crisp-color-theme-700: 50, 101, 124; --crisp-color-theme-800: 42, 90, 112; --crisp-color-theme-900: 39, 85, 106; --crisp-color-theme-reverse: 255, 255, 255;"><div class="cc-1lkve"></div><div class="cc-yv368" id="crisp-chatbox" data-hidden="false" data-force-show="false" data-color-mode="light" data-availability="online" data-lock-maximized="false" data-website-logo="false" data-last-operator-face="false" data-ongoing-operator-face="false" data-availability-tooltip="false" data-hide-vacation="false" data-blocked="false" data-mobile-view="false" data-full-view="false" data-small-view="false" data-large-view="true" data-has-local-messages="false" data-was-availability-online="true" data-is-activity-ongoing="false" data-hide-on-away="false" data-hide-on-mobile="false" data-position-reverse="true"><div class="cc-1kr6o cc-cxjxh cc-jx6a3"><div class="cc-18ov6" data-maximized="false" data-is-failure="false" role="button" tabindex="0" aria-label="Open chat" data-pane-animate-entrance="false" data-pop="minimized:open"><span class="cc-1442g"><!--v-if--></span><span class="cc-1qbp0 cc-1o31k"><span class="cc-otlyh" data-id="chat_closed" data-is-ongoing="false"><span class="cc-11f3x cc-16kzz" data-partial-pending="false"><!--v-if--></span></span></span></div></div></div><div class="cc-yv368 cc-vx6i0"></div><div class="cc-yv368 cc-1tx1r"></div><div class="cc-yv368 cc-jcxto" data-color-mode="light"></div></div><iframe name="__privateStripeMetricsController4190" frameborder="0" allowtransparency="true" scrolling="no" role="presentation" allow="payment *" src="./mlops-crash-course-part-12_files/m-outer-3437aaddcdf6922d623e172c2d6f9278.html" aria-hidden="true" tabindex="-1" style="border: none !important; margin: 0px !important; padding: 0px !important; width: 1px !important; min-width: 100% !important; overflow: hidden !important; display: block !important; visibility: hidden !important; position: fixed !important; height: 1px !important; pointer-events: none !important; user-select: none !important;"></iframe></body></html>
